@@ -1,8 +1,11 @@
+from dataclasses import dataclass
+
 import numpy as np
 from numpy.random import normal
 from scipy.integrate import solve_ivp
 
 from .model import model, pack, unpack
+from .register import Variant, create_register
 
 
 class System:
@@ -23,7 +26,7 @@ class System:
         self.history = [X0] * steps
         self.timer = np.random.exponential(scale=1 / self.f)
         self.extinguished = []
-        self.parents = [-1] * round((X0.shape[0] - 1) / 3)
+        self.pokedex = create_register(l, g, B, a, f)
 
     def solve(self):
         t = 0
@@ -51,7 +54,7 @@ class System:
         history = format_history(self.history)
         t = np.linspace(0, self.lenght, self.steps)
 
-        return history, t
+        return history, t, self.pokedex
 
     def step(self, X, t, next_t):
         sol = solve_ivp(model, (t, next_t), X, args=(self.l, self.g, self.a, self.B))
@@ -67,10 +70,6 @@ class System:
             [self.timer, np.random.exponential(scale=1 / self.f[-1], size=(1, 1))]
         )
 
-        # Adding the real index of the parent to the storage
-        real_idx = np.where(self.history[step] == X[idx + 1])
-        self.parents.append(real_idx[0].item() - 1)
-
         size = self.B.shape[0]
         B = np.zeros((size + 1, size + 1))
         B[:size, :size] = self.B
@@ -78,6 +77,19 @@ class System:
         B[:, -1] = B[:, -1] + normal(size=(size + 1,)) / 10
         B[-1, -1] = 0
         self.B = B.clip(min=0)
+
+        # Getting the real idx of the parent and updating the pokedex
+        real_idx = np.where(self.history[step] == X[idx + 1])
+        self.pokedex.append(
+            Variant(
+                self.l[-1].item(),
+                self.g[-1].item(),
+                self.B[-1, -1].item(),
+                self.a[-1].item(),
+                self.f[-1].item(),
+                real_idx[0].item() - 1,
+            )
+        )
 
         S, I, R, W = unpack(X)
 
