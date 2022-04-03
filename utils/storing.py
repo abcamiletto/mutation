@@ -3,12 +3,13 @@ import pathlib
 import numpy as np
 import yaml
 
+yaml_file = pathlib.Path(__file__).parent.parent.joinpath("experiments.yaml")
+yaml_file.touch(exist_ok=True)
+
 
 def save_experiment(l, g, B, a, X0):
     name = input("Input a name : ")
 
-    yaml_file = pathlib.Path(__file__).parent.parent.joinpath("experiments.yaml")
-    yaml_file.touch(exist_ok=True)
     # Reading it
     with open(str(yaml_file), "r") as f:
         exps = yaml.load(f, Loader=yaml.FullLoader) or {}
@@ -34,26 +35,12 @@ def save_experiment(l, g, B, a, X0):
         yaml.dump(exps, f, default_flow_style=False)
 
 
-def load_experiment():
-    yaml_file = pathlib.Path(__file__).parent.parent.joinpath("experiments.yaml")
-    yaml_file.touch(exist_ok=True)
-    # Reading it
+def load_experiment(exp):
+
     with open(str(yaml_file), "r") as f:
         exps = yaml.load(f, Loader=yaml.FullLoader) or {}
 
-    print("The following experiments are available")
-    for idx, exp in enumerate(exps):
-        print(f"\t {idx} : {exp}")
-    print(f"\t {-1} : random")
-
-    name = input("Which one do you want to run? ")
-
-    if name == "-1" or name == "random":
-        dim = int(input("Input the dimension of the randomized experiment: "))
-        return generate_random_exp(dim)
-
-    if name.isnumeric():
-        name = [key for key in exps][int(name)]
+    name = [key for key in exps][exp]
 
     params = exps[name]
     l, g, B, a = params["lambda"], params["gamma"], params["beta"], params["alpha"]
