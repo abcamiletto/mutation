@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 plt.style.use("fivethirtyeight")
 
 
-def plot_results(y, t):
+def plot_results(y, t, parents):
     size = round((y.shape[-1] - 1) / 3)
 
     row = size // 3 + 1
@@ -35,7 +35,9 @@ def plot_results(y, t):
             if idx % row == 0:
                 ax.set_ylabel("Population")
 
-            ax.set_title(f"Variant {idx}")
+            parent = parents[idx - 1] + 1
+            variant_name = idx if parent == 0 else f"{idx} from {parent}"
+            ax.set_title(f"Variant {variant_name}")
 
     fig.tight_layout()
 

@@ -14,7 +14,7 @@ system = System(X0, l, g, B, a, f, lenght, steps)
 y, t = system.solve()
 
 # Plotting results
-plot_results(y, t)
+plot_results(y, t, system.parents)
 
 if input("Do you want to save the settings of the experiments? [y/N] ") == "y":
     save_experiment(l, g, B, a, X0)
