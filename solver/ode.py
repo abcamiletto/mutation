@@ -1,58 +1,91 @@
 import numpy as np
+from numpy.random import normal
 from scipy.integrate import solve_ivp
 
 from .model import model, pack, unpack
 
 
-def solve(X0, l, g, B, a, lenght, steps, variants=True):
-    # Solve ode
-    history = [X0] * steps
-    current_t = 0
-    X = X0
+class System:
+    def __init__(self, X0, l, g, B, a, f, lenght, steps):
+        # Storing Inputs
+        self.X0 = X0
+        self.l = l
+        self.g = g
+        self.B = B
+        self.a = a
+        self.f = f
+        self.lenght = lenght
+        self.steps = steps
 
-    for i in range(1, steps):
-        new_t = lenght * i / steps
-        sol = solve_ivp(model, (current_t, new_t), X, args=(l, g, a, B))
+        # Helper Variables
+        self.history = [X0] * steps
+        self.timer = np.random.exponential(scale=1 / self.f)
+
+    def solve(self):
+        t = 0
+        X = self.X0
+
+        for i in range(1, self.steps):
+            next_t = self.lenght * i / self.steps
+            X = self.step(X, t, next_t)
+
+            self.history[i] = X
+            t = next_t
+
+            # TODO : kill variation with I < 1e-3
+
+            parents = self.check_spawning(X)
+            for parent in parents:
+                X = self.spawn_variant(X, idx=parent)
+
+        history = format_history(self.history)
+        t = np.linspace(0, self.lenght, self.steps)
+
+        return history, t
+
+    def step(self, X, t, next_t):
+        sol = solve_ivp(model, (t, next_t), X, args=(self.l, self.g, self.a, self.B))
         X = sol.y[:, -1]
-        history[i] = X
-        current_t = new_t
+        return X
 
-        if variants and (i % round(steps / 5) == 0):
-            X, l, g, B, a = spawn_variant(X, l, g, B, a, variant_idx=0)
+    def spawn_variant(self, X, idx):
+        self.l = np.concatenate([self.l, self.l[idx] + normal(size=(1, 1)) / 10]).clip(min=0)
+        self.g = np.concatenate([self.g, self.g[idx] + normal(size=(1, 1)) / 10]).clip(min=0)
+        self.a = np.concatenate([self.a, self.a[idx] + normal(size=(1, 1)) / 10]).clip(min=0)
+        self.f = np.concatenate([self.f, self.f[idx] + normal(size=(1, 1)) / 10]).clip(min=1e-4)
+        self.timer = np.concatenate(
+            [self.timer, np.random.exponential(scale=1 / self.f[-1], size=(1, 1))]
+        )
 
-    history = format_history(history)
-    t = np.linspace(0, lenght, steps)
+        size = self.B.shape[0]
+        B = np.zeros((size + 1, size + 1))
+        B[:size, :size] = self.B
+        B[-1, :] = B[-2, :] + normal(size=(size + 1,)) / 10
+        B[:, -1] = B[:, -1] + normal(size=(size + 1,)) / 10
+        B[-1, -1] = 0
+        self.B = B.clip(min=0)
 
-    return history, t
+        S, I, R, W = unpack(X)
 
+        S = np.expand_dims(S, 1)
+        # TODO : Remove 1e-3 from I
+        I = np.expand_dims(np.append(I, 1e-3), 1)
+        R = np.expand_dims(np.append(R, 0), 1)
+        W = np.expand_dims(np.append(W, 0), 1)
 
-def spawn_variant(X, l, g, B, a, variant_idx):
-    l_new = np.expand_dims(l[variant_idx] + np.random.normal() / 10, 1)
-    g_new = np.expand_dims(g[variant_idx] + np.random.normal() / 10, 1)
-    a_new = np.expand_dims(a[variant_idx] + np.random.normal() / 10, 1)
-    l = np.concatenate([l, l_new])
-    g = np.concatenate([g, g_new])
-    a = np.concatenate([a, a_new])
+        X = pack([S, I, R, W])
+        return X
 
-    size = B.shape[0]
-    new_B = np.zeros((size + 1, size + 1))
-    new_B[:size, :size] = B
-    B = new_B
-    B[-1, :] = B[-2, :] + np.random.normal(size=(size + 1,)) / 10
-    B[:, -1] = B[:, -1] + np.random.normal(size=(size + 1,)) / 10
-    B[-1, -1] = 0
-    B = B.clip(min=0)
+    def check_spawning(self, X):
+        _, I, _, _ = unpack(X)
+        self.timer -= I
 
-    S, I, R, W = unpack(X)
-
-    S = np.expand_dims(S, 1)
-    I = np.expand_dims(np.append(I, 1e-3), 1)
-    R = np.expand_dims(np.append(R, 0), 1)
-    W = np.expand_dims(np.append(W, 0), 1)
-
-    X = pack([S, I, R, W])
-
-    return X, l, g, B, a
+        parent_variant = []
+        for idx, timer in enumerate(self.timer):
+            if timer < 0:
+                self.timer[idx] = np.random.exponential(scale=1 / self.f[idx])
+                parent_variant.append(idx)
+        return parent_variant
 
 
 def format_history(history):
@@ -75,44 +108,3 @@ def format_history(history):
 
     history = np.squeeze(np.array(history))
     return history
-
-
-class Solver:
-    def __init__(self, X0, l, g, B, a, lenght, steps):
-        # Storing Inputs
-        self.X0 = X0
-        self.l = l
-        self.g = g
-        self.B = B
-        self.a = a
-        self.lenght = lenght
-        self.steps = steps
-
-        # Helper Variables
-        self.history = [X0] * steps
-
-    def solve(self):
-        t = 0
-        X = self.X0
-
-        for i in range(1, self.steps):
-            next_t = self.lenght * i / self.steps
-            X = self.step(t, next_t)
-
-            history[i] = X
-            t = next_t
-
-            if self.check_spawning():
-                X, l, g, B, a = spawn_variant(X, l, g, B, a, variant_idx=0)
-
-        history = format_history(self.history)
-        t = np.linspace(0, self.lenght, self.steps)
-
-        return history, t
-
-    def step(self, t, next_t):
-        sol = solve_ivp(model, (t, next_t), X, args=(self.l, self.g, self.a, self.B))
-        X = sol.y[:, -1]
-
-    def check_spawning(self):
-        pass
