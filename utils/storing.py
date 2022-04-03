@@ -66,7 +66,7 @@ def generate_random_exp(dim):
     l = np.random.rand(dim, 1)
     g = np.random.rand(dim, 1)
     a = np.random.rand(dim, 1)
-    f = np.random.rand(dim, 1)
+    f = np.random.rand(dim, 1).clip(min=1e-6)
     B = np.random.rand(dim, dim) / 1000000
 
     I0 = np.random.rand(dim) / (5 * dim)
