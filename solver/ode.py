@@ -6,6 +6,8 @@ from .model import model, pack, unpack
 
 
 class System:
+    UNIT = 1e-3
+
     def __init__(self, X0, l, g, B, a, f, lenght, steps):
         # Storing Inputs
         self.X0 = X0
@@ -20,23 +22,32 @@ class System:
         # Helper Variables
         self.history = [X0] * steps
         self.timer = np.random.exponential(scale=1 / self.f)
+        self.extinguished = []
 
     def solve(self):
         t = 0
         X = self.X0
 
         for i in range(1, self.steps):
+            # Calculating next step
             next_t = self.lenght * i / self.steps
             X = self.step(X, t, next_t)
 
-            self.history[i] = X
+            # self.history[i] = X
+            self.add_to_history(i, X)
             t = next_t
 
-            # TODO : kill variation with I < 1e-3
-
+            # Spawning new variation
             parents = self.check_spawning(X)
             for parent in parents:
+                print("Spawning")
                 X = self.spawn_variant(X, idx=parent)
+
+            # Deleting bad variation
+            extinct = self.check_deletion(X, step=i)
+            if extinct:
+                print(f"Deleting {len(extinct)}")
+                X = self.delete_state(X, extinct)
 
         history = format_history(self.history)
         t = np.linspace(0, self.lenght, self.steps)
@@ -68,8 +79,8 @@ class System:
         S, I, R, W = unpack(X)
 
         S = np.expand_dims(S, 1)
-        # TODO : Remove 1e-3 from I
-        I = np.expand_dims(np.append(I, 1e-3), 1)
+        I[idx] -= self.UNIT
+        I = np.expand_dims(np.append(I, self.UNIT), 1)
         R = np.expand_dims(np.append(R, 0), 1)
         W = np.expand_dims(np.append(W, 0), 1)
 
@@ -87,8 +98,59 @@ class System:
                 parent_variant.append(idx)
         return parent_variant
 
+    def check_deletion(self, X, step):
+        _, I, _, _ = unpack(X)
+
+        to_delete = []
+        for idx, infected in enumerate(I):
+            if infected < 0.8 * self.UNIT:
+                # Finding the real index of the variant as
+                # other ones could already have been deleted
+                real_idx = np.where(self.history[step] == infected)
+                self.extinguished.append(real_idx[0].item() - 1)
+                self.extinguished.sort()
+                to_delete.append(idx)
+        return to_delete
+
+    def delete_state(self, X, idxes):
+        """Delete variants from state and parameters"""
+        self.l = np.delete(self.l, idxes, axis=0)
+        self.g = np.delete(self.g, idxes, axis=0)
+        self.a = np.delete(self.a, idxes, axis=0)
+        self.f = np.delete(self.f, idxes, axis=0)
+        self.timer = np.delete(self.timer, idxes, axis=0)
+        self.B = np.delete(self.B, idxes, axis=0)
+        self.B = np.delete(self.B, idxes, axis=1)
+
+        size = round((X.shape[0] - 1) / 3)
+        state_idx = []
+        for idx in idxes:
+            state_idx.extend([idx + 1, size + idx + 1, 2 * size + idx + 1])
+
+        X = np.delete(X, state_idx)
+        return X
+
+    def add_to_history(self, step, X):
+        total_size = len(self.extinguished) * 3 + len(X)
+        n_variants = round((total_size - 1) / 3)
+        complete_state = [0] * total_size
+
+        for idx in self.extinguished:
+            complete_state[idx + 1] = None
+            complete_state[n_variants + idx + 1] = None
+            complete_state[2 * n_variants + idx + 1] = None
+
+        i = 0
+        for j in range(len(complete_state)):
+            if complete_state[j] is not None:
+                complete_state[j] = X[i].item()
+                i += 1
+
+        self.history[step] = np.array(complete_state)
+
 
 def format_history(history):
+    """Rewriting history ad posterium to add None at the first steps of mid-born variant"""
     max_shape = max(history, key=lambda x: x.shape[0]).shape[0]
     max_size = round((max_shape - 1) / 3)
 
