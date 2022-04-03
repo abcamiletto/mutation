@@ -4,7 +4,9 @@ This script is inteded to model the dynamics of mutations in various epidemic si
 
 ## Installation Guide
 
-    git clone .
-    pip install 
+    git clone https://github.com/abcamiletto/mutation.git
+    cd mutation
+    pip install -r requirements.txt
 
 ## Usage
+
