@@ -24,9 +24,9 @@ def plot_results(y, t):
     for idx, ax in enumerate(axes[1:], start=1):
         if idx <= size:
             ax.plot(t, y[:, 0])
-            ax.plot(t, y[:, idx], c=cycle[(idx) % len(cycle)])
             ax.plot(t, y[:, idx + size], "--", linewidth=2, c="rosybrown")
             ax.plot(t, y[:, idx + size * 2], "--", linewidth=2, c="slategray")
+            ax.plot(t, y[:, idx], c=cycle[(idx) % len(cycle)])
             ax.legend(["S", f"$I_{{{idx}}}$", f"$W_{{{idx}}}$", f"$R_{{{idx}}}$"])
 
             if idx // row == row - 1:
