@@ -35,6 +35,13 @@ def process_args():
         help="Dimension of the randomized run. If given, it overrides the -e entry",
     )
 
+    parser.add_argument(
+        "-d",
+        "--deterministic",
+        action="store_true",
+        help="If True use deterministic behaviours",
+    )
+
     args = parser.parse_args()
 
     if args.list_experiments:
@@ -45,6 +52,14 @@ def process_args():
         for idx, exp in enumerate(exps):
             print(f"\t {idx} : {exp}")
         sys.exit()
+
+    if args.deterministic:
+        import random
+
+        import numpy as np
+
+        random.seed(42)
+        np.random.seed(42)
 
     if args.randomize_dim != 0:
         exp = generate_random_exp(args.randomize_dim)
