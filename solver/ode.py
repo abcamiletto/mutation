@@ -41,13 +41,11 @@ class System:
             # Spawning new variation
             parents = self.check_spawning(X)
             for parent in parents:
-                print(f"Spawning from {parent+1}")
-                X = self.spawn_variant(X, idx=parent)
+                X = self.spawn_variant(X, idx=parent, step=i)
 
             # Deleting bad variation
             extinct = self.check_deletion(X, step=i)
             if extinct:
-                print(f"Deleting {len(extinct)}")
                 X = self.delete_state(X, extinct)
 
         history = format_history(self.history)
@@ -60,7 +58,7 @@ class System:
         X = sol.y[:, -1]
         return X
 
-    def spawn_variant(self, X, idx):
+    def spawn_variant(self, X, idx, step):
         self.l = np.concatenate([self.l, self.l[idx] + normal(size=(1, 1)) / 10]).clip(min=0)
         self.g = np.concatenate([self.g, self.g[idx] + normal(size=(1, 1)) / 10]).clip(min=0)
         self.a = np.concatenate([self.a, self.a[idx] + normal(size=(1, 1)) / 10]).clip(min=0)
@@ -68,7 +66,10 @@ class System:
         self.timer = np.concatenate(
             [self.timer, np.random.exponential(scale=1 / self.f[-1], size=(1, 1))]
         )
-        self.parents.append(idx)
+
+        # Adding the real index of the parent to the storage
+        real_idx = np.where(self.history[step] == X[idx + 1])
+        self.parents.append(real_idx[0].item() - 1)
 
         size = self.B.shape[0]
         B = np.zeros((size + 1, size + 1))
