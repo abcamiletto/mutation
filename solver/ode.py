@@ -23,6 +23,7 @@ class System:
         self.history = [X0] * steps
         self.timer = np.random.exponential(scale=1 / self.f)
         self.extinguished = []
+        self.parents = [-1] * round((X0.shape[0] - 1) / 3)
 
     def solve(self):
         t = 0
@@ -40,7 +41,7 @@ class System:
             # Spawning new variation
             parents = self.check_spawning(X)
             for parent in parents:
-                print("Spawning")
+                print(f"Spawning from {parent+1}")
                 X = self.spawn_variant(X, idx=parent)
 
             # Deleting bad variation
@@ -63,10 +64,11 @@ class System:
         self.l = np.concatenate([self.l, self.l[idx] + normal(size=(1, 1)) / 10]).clip(min=0)
         self.g = np.concatenate([self.g, self.g[idx] + normal(size=(1, 1)) / 10]).clip(min=0)
         self.a = np.concatenate([self.a, self.a[idx] + normal(size=(1, 1)) / 10]).clip(min=0)
-        self.f = np.concatenate([self.f, self.f[idx] + normal(size=(1, 1)) / 10]).clip(min=1e-4)
+        self.f = np.concatenate([self.f, self.f[idx] + normal(size=(1, 1)) / 10]).clip(min=1e-6)
         self.timer = np.concatenate(
             [self.timer, np.random.exponential(scale=1 / self.f[-1], size=(1, 1))]
         )
+        self.parents.append(idx)
 
         size = self.B.shape[0]
         B = np.zeros((size + 1, size + 1))
