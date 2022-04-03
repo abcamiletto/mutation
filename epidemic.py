@@ -1,7 +1,7 @@
 from solver.ode import solve
 from utils.args import process_args
 from utils.plots import plot_results
-from utils.storing import load_experiment, save_experiment
+from utils.storing import save_experiment
 
 # Selecting the starting point and parameters
 l, g, B, a, X0 = process_args()

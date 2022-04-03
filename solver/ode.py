@@ -1,5 +1,5 @@
 import numpy as np
-from scipy.integrate import RK45, odeint, solve_ivp
+from scipy.integrate import solve_ivp
 
 from .model import model, pack, unpack
 
@@ -75,3 +75,44 @@ def format_history(history):
 
     history = np.squeeze(np.array(history))
     return history
+
+
+class Solver:
+    def __init__(self, X0, l, g, B, a, lenght, steps):
+        # Storing Inputs
+        self.X0 = X0
+        self.l = l
+        self.g = g
+        self.B = B
+        self.a = a
+        self.lenght = lenght
+        self.steps = steps
+
+        # Helper Variables
+        self.history = [X0] * steps
+
+    def solve(self):
+        t = 0
+        X = self.X0
+
+        for i in range(1, self.steps):
+            next_t = self.lenght * i / self.steps
+            X = self.step(t, next_t)
+
+            history[i] = X
+            t = next_t
+
+            if self.check_spawning():
+                X, l, g, B, a = spawn_variant(X, l, g, B, a, variant_idx=0)
+
+        history = format_history(self.history)
+        t = np.linspace(0, self.lenght, self.steps)
+
+        return history, t
+
+    def step(self, t, next_t):
+        sol = solve_ivp(model, (t, next_t), X, args=(self.l, self.g, self.a, self.B))
+        X = sol.y[:, -1]
+
+    def check_spawning(self):
+        pass
