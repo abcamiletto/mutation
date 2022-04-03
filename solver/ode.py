@@ -108,7 +108,7 @@ class System:
                 # other ones could already have been deleted
                 real_idx = np.where(self.history[step] == infected)
                 if real_idx[0].size == 0:
-                    real_idx = np.where(self.history[step] - self.UNIT == infected)
+                    real_idx = np.where(self.history[step] == infected + self.UNIT)
                 self.extinguished.append(real_idx[0].item() - 1)
                 self.extinguished.sort()
                 to_delete.append(idx)
