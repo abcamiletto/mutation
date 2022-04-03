@@ -43,22 +43,30 @@ def load_experiment(exp):
     name = [key for key in exps][exp]
 
     params = exps[name]
-    l, g, B, a = params["lambda"], params["gamma"], params["beta"], params["alpha"]
+    l, g, B, a, f = (
+        params["lambda"],
+        params["gamma"],
+        params["beta"],
+        params["alpha"],
+        params["frequency"],
+    )
 
     l = np.expand_dims(np.array(l), 1)
     g = np.expand_dims(np.array(g), 1)
     a = np.expand_dims(np.array(a), 1)
+    f = np.expand_dims(np.array(f), 1)
     B = np.array(B)
 
     X0 = np.array([*params["S0"], *params["I0"], *params["R0"], *params["W0"]])
 
-    return l, g, B, a, X0
+    return l, g, B, a, f, X0
 
 
 def generate_random_exp(dim):
     l = np.random.rand(dim, 1)
     g = np.random.rand(dim, 1)
     a = np.random.rand(dim, 1)
+    f = np.random.rand(dim, 1)
     B = np.random.rand(dim, dim) / 1000000
 
     I0 = np.random.rand(dim) / (5 * dim)
@@ -67,4 +75,4 @@ def generate_random_exp(dim):
     W0 = [0] * dim
 
     X0 = np.array([S0, *I0, *R0, *W0])
-    return l, g, B, a, X0
+    return l, g, B, a, f, X0
