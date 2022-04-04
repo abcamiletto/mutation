@@ -128,11 +128,11 @@ class System:
 
     def check_deletion(self, X, step):
         """Check which variant we should kill because it's extinguished"""
-        _, I, _, _ = unpack(X)
+        _, I, R, W = unpack(X)
 
         to_delete = []
-        for idx, infected in enumerate(I):
-            if infected < 0.8 * self.UNIT:
+        for idx, (infected, recovered, weak) in enumerate(zip(I, R, W)):
+            if infected + recovered * 0.35 + weak * 0.35 < 0.95 * self.UNIT:
                 # Finding the absolute index of the variant
                 real_idx = np.where(self.history[step] == infected)
                 # It may happen that the variant to delete is one that just spawned
