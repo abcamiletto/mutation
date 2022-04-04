@@ -1,6 +1,6 @@
 from solver.ode import System
+from static.plots import plot_results
 from utils.args import process_args
-from utils.plots import plot_results
 from utils.storing import save_experiment
 
 # Selecting the starting point and parameters

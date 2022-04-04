@@ -63,20 +63,3 @@ def load_experiment(exp):
     X0 = np.array([*params["S0"], *params["I0"], *params["R0"], *params["W0"]])
 
     return l, g, B, a, f, X0
-
-
-def generate_random_exp(dim, sick_size=0.1):
-    """Generate random experiments of dimension dim"""
-    l = np.random.rand(dim, 1)
-    g = np.random.rand(dim, 1)
-    a = np.random.rand(dim, 1)
-    f = np.random.rand(dim, 1).clip(min=1e-6)
-    B = np.random.rand(dim, dim) / 100
-
-    I0 = np.ones(dim) * sick_size / (dim)
-    S0 = 1 - I0.sum()
-    R0 = [0] * dim
-    W0 = [0] * dim
-
-    X0 = np.array([S0, *I0, *R0, *W0])
-    return l, g, B, a, f, X0

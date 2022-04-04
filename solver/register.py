@@ -10,7 +10,7 @@ class Variant:
     beta_self: float
     alpha: float
     frequency: float
-    parent: int
+    parent: int = None
 
 
 def create_register(l, g, B, a, f):
