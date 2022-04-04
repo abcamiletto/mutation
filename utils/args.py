@@ -42,6 +42,13 @@ def process_args():
         help="If True use deterministic behaviours",
     )
 
+    parser.add_argument(
+        "-n",
+        "--no-mutation",
+        action="store_true",
+        help="If given this flag disables mutation",
+    )
+
     args = parser.parse_args()
 
     if args.list_experiments:
@@ -66,4 +73,4 @@ def process_args():
     else:
         exp = load_experiment(args.experiment)
 
-    return exp
+    return exp, not args.no_mutation
