@@ -8,6 +8,8 @@ yaml_file.touch(exist_ok=True)
 
 
 def save_experiment(l, g, B, a, X0):
+    """Saving the current experiment into the experiments.yaml file"""
+
     name = input("Input a name : ")
 
     # Reading it
@@ -36,6 +38,7 @@ def save_experiment(l, g, B, a, X0):
 
 
 def load_experiment(exp):
+    """Load experiment of index exp from yaml file"""
 
     with open(str(yaml_file), "r") as f:
         exps = yaml.load(f, Loader=yaml.FullLoader) or {}
@@ -63,6 +66,7 @@ def load_experiment(exp):
 
 
 def generate_random_exp(dim):
+    """Generate random experiments of dimension dim"""
     l = np.random.rand(dim, 1)
     g = np.random.rand(dim, 1)
     a = np.random.rand(dim, 1)
