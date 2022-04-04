@@ -9,9 +9,7 @@ from .register import Variant, create_register
 class System:
     """Wrapper class to store info about the system evolution"""
 
-    UNIT = 1e-3  # definition of a single "person"
-
-    def __init__(self, X0, l, g, B, a, f, lenght, steps, mutation):
+    def __init__(self, X0, l, g, B, a, f, lenght, steps, mutation, unit_size=1e-3):
         # Storing Inputs
         self.X0 = X0
         self.l = l
@@ -22,6 +20,7 @@ class System:
         self.lenght = lenght
         self.steps = steps
         self.mutation = mutation
+        self.UNIT = unit_size  # definition of an outbreak
 
         # Helper Variables
         self.history = [X0] * steps
