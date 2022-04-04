@@ -61,7 +61,7 @@ def build_starting_point(variants, sick_size):
     f = np.expand_dims(np.array(var.frequency), axis=(0, 1)).clip(min=1e-6)
     X0 = np.array([1 - sick_size, sick_size, 0, 0])
     for var in variants[1:]:
-        l, g, B, a, f, X0 = add_variant(var, l, g, B, a, f, X0, rebalance=True)
+        l, g, B, a, f, X0 = add_variant(var, l, g, B, a, f, X0, rebalance=True, sick_size=sick_size)
     return l, g, B, a, f, X0
 
 
