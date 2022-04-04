@@ -77,7 +77,6 @@ def add_variant(variant, l, g, B, a, f, X0, rebalance=False, sick_size=0.1, unit
     S = np.expand_dims(S, 1)
     if rebalance:
         I = np.ones(shape=(len(I) + 1, 1)) * sick_size / (len(I) + 1)
-        print(I)
     else:
         I = np.expand_dims(np.append(I, unit), 1)
     R = np.expand_dims(np.append(R, 0), 1)
