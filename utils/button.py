@@ -43,4 +43,3 @@ class customButton:
         table.scale(1, 2)
         fig.tight_layout()
         plt.show()
-        pprint(self.variant)
