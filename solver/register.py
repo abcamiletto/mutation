@@ -7,7 +7,7 @@ import numpy as np
 class Variant:
     lamda: float
     gamma: float
-    beta_self: np.ndarray
+    beta_self: float
     alpha: float
     frequency: float
     parent: int
