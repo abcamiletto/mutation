@@ -8,7 +8,7 @@ from interactive.plots import plotly_results
 from interactive.util import df_from_pokedex
 from solver.ode import System
 from solver.register import Variant
-from utils.generate import build_starting_point, generate_exp_from_prior
+from utils.generate import add_variant, build_starting_point, generate_exp_from_prior
 
 random.seed(42)
 np.random.seed(42)
@@ -66,11 +66,10 @@ with left2:
     alpha = st.slider("Antibodies Loss Rate", 0.0, 1.0, 0.1)
     beta = st.slider("Re-Illness Rate", 0.0, 1.0, 0.1)
     frequency = st.slider("Mutation Likelihood", 0.0, 1.0, 0.0)
-
-    if st.button("Add to Environment"):
-        v = Variant(lamda, gamma, beta, alpha, frequency)
-        st.session_state.pool.append(v)
-        print(st.session_state.pool)
+    if env_settings:
+        if st.button("Add to Environment"):
+            v = Variant(lamda, gamma, beta, alpha, frequency)
+            st.session_state.pool.append(v)
 
 
 l, g, B, a, f, X0 = generate_exp_from_prior(
@@ -79,6 +78,9 @@ l, g, B, a, f, X0 = generate_exp_from_prior(
 
 if st.session_state.pool:
     l, g, B, a, f, X0 = build_starting_point(st.session_state.pool, sick_size / 100)
+    var = Variant(lamda, gamma, beta, alpha, frequency)
+    if var != st.session_state.pool[-1]:
+        l, g, B, a, f, X0 = add_variant(var, l, g, B, a, f, X0, rebalance=True)
 
 # Defining the settings for the simulation
 steps = 100
