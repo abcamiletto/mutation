@@ -1,5 +1,3 @@
-from dataclasses import dataclass
-
 import numpy as np
 from numpy.random import normal
 from scipy.integrate import solve_ivp
@@ -9,7 +7,9 @@ from .register import Variant, create_register
 
 
 class System:
-    UNIT = 1e-3
+    """Wrapper class to store info about the system evolution"""
+
+    UNIT = 1e-3  # definition of a single "person"
 
     def __init__(self, X0, l, g, B, a, f, lenght, steps):
         # Storing Inputs
@@ -24,22 +24,25 @@ class System:
 
         # Helper Variables
         self.history = [X0] * steps
-        self.timer = np.random.exponential(scale=1 / self.f)
-        self.extinguished = []
+        self.timer = np.random.exponential(scale=1 / self.f)  # Timers to spawn new variantsS
+        self.extinguished = []  # Absolute index of extinguished variants
         self.pokedex = create_register(l, g, B, a, f)
 
     def solve(self):
+        """Solving the ODEs"""
+        # Initial Conditions
         t = 0
         X = self.X0
 
         for i in range(1, self.steps):
+
             # Calculating next step
             next_t = self.lenght * i / self.steps
             X = self.step(X, t, next_t)
-
-            # self.history[i] = X
-            self.add_to_history(i, X)
             t = next_t
+
+            # Updating History
+            self.add_to_history(i, X)
 
             # Spawning new variation
             parents = self.check_spawning(X)
@@ -51,17 +54,23 @@ class System:
             if extinct:
                 X = self.delete_state(X, extinct)
 
+        # Format History ad posterium
         history = format_history(self.history)
+
+        # Times to evaluate and plot the solution
         t = np.linspace(0, self.lenght, self.steps)
 
         return history, t, self.pokedex
 
     def step(self, X, t, next_t):
+        """Single RK45 step of ODEs"""
         sol = solve_ivp(model, (t, next_t), X, args=(self.l, self.g, self.a, self.B))
         X = sol.y[:, -1]
         return X
 
     def spawn_variant(self, X, idx, step):
+        """Spawn a new variant from parent idx"""
+        # Extending model parameters
         self.l = np.concatenate([self.l, self.l[idx] + normal(size=(1, 1)) / 10]).clip(min=0)
         self.g = np.concatenate([self.g, self.g[idx] + normal(size=(1, 1)) / 10]).clip(min=0)
         self.a = np.concatenate([self.a, self.a[idx] + normal(size=(1, 1)) / 10]).clip(min=0)
@@ -91,6 +100,7 @@ class System:
             )
         )
 
+        # Extending the state
         S, I, R, W = unpack(X)
 
         S = np.expand_dims(S, 1)
@@ -103,29 +113,35 @@ class System:
         return X
 
     def check_spawning(self, X):
+        """Check from whom we should spawn a new variant"""
         _, I, _, _ = unpack(X)
         self.timer -= I
 
         parent_variant = []
         for idx, timer in enumerate(self.timer):
             if timer < 0:
+                # Resetting the timer
                 self.timer[idx] = np.random.exponential(scale=1 / self.f[idx])
                 parent_variant.append(idx)
         return parent_variant
 
     def check_deletion(self, X, step):
+        """Check which variant we should kill because it's extinguished"""
         _, I, _, _ = unpack(X)
 
         to_delete = []
         for idx, infected in enumerate(I):
             if infected < 0.8 * self.UNIT:
-                # Finding the real index of the variant as
-                # other ones could already have been deleted
+                # Finding the absolute index of the variant
                 real_idx = np.where(self.history[step] == infected)
+                # It may happen that the variant to delete is one that just spawned
                 if real_idx[0].size == 0:
+                    # In that case we look for it like this
                     real_idx = np.where(self.history[step] == infected + self.UNIT)
+
                 self.extinguished.append(real_idx[0].item() - 1)
                 self.extinguished.sort()
+                # Appending the relative index
                 to_delete.append(idx)
         return to_delete
 
@@ -148,15 +164,18 @@ class System:
         return X
 
     def add_to_history(self, step, X):
+        """Add state to history, keeping track of absolute indexes"""
         total_size = len(self.extinguished) * 3 + len(X)
         n_variants = round((total_size - 1) / 3)
         complete_state = [0] * total_size
 
+        # Setting extinguished variants indexes to None
         for idx in self.extinguished:
             complete_state[idx + 1] = None
             complete_state[n_variants + idx + 1] = None
             complete_state[2 * n_variants + idx + 1] = None
 
+        # Filling the yet unused elements with the current state
         i = 0
         for j in range(len(complete_state)):
             if complete_state[j] is not None:
