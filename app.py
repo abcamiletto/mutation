@@ -15,7 +15,7 @@ st.write(
 In this web app you will be able to configure and run various configuration of diseases!"""
 )
 
-dimension = st.slider("Number of different variants at the beginning", 1, 5, 1)
+dimension = st.slider("Number of different variants to begin with", 1, 5, 1)
 
 st.write("""Let's now define the main characterstics of those diseases""")
 
