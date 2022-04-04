@@ -65,7 +65,7 @@ def load_experiment(exp):
     return l, g, B, a, f, X0
 
 
-def generate_random_exp(dim):
+def generate_random_exp(dim, sick_size=0.1):
     """Generate random experiments of dimension dim"""
     l = np.random.rand(dim, 1)
     g = np.random.rand(dim, 1)
@@ -73,7 +73,7 @@ def generate_random_exp(dim):
     f = np.random.rand(dim, 1).clip(min=1e-6)
     B = np.random.rand(dim, dim) / 100
 
-    I0 = np.random.rand(dim) / (5 * dim)
+    I0 = np.ones(dim) * sick_size / (dim)
     S0 = 1 - I0.sum()
     R0 = [0] * dim
     W0 = [0] * dim

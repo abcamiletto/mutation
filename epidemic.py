@@ -4,13 +4,13 @@ from utils.plots import plot_results
 from utils.storing import save_experiment
 
 # Selecting the starting point and parameters
-(l, g, B, a, f, X0), mutation = process_args()
+(l, g, B, a, f, X0), params = process_args()
 
 # Defining the settings for the simulation
 steps = 100
 lenght = 25
 # Solving the simulation
-system = System(X0, l, g, B, a, f, lenght, steps, mutation)
+system = System(X0, l, g, B, a, f, lenght, steps, **params)
 y, t, pokedex = system.solve()
 
 # Plotting results

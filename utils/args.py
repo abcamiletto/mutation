@@ -49,6 +49,24 @@ def process_args():
         help="If given this flag disables mutation",
     )
 
+    parser.add_argument(
+        "-s",
+        "--sick_size",
+        metavar="",
+        type=float,
+        default=0.1,
+        help="Percentage of the population sick at the beginning of the simulation, by default 0.1. Only used in randomized runs.",
+    )
+
+    parser.add_argument(
+        "-o",
+        "--outbreak_size",
+        metavar="",
+        type=float,
+        default=0.001,
+        help="Percentage of the population sick when a new variation spawn, by default 1e-3.",
+    )
+
     args = parser.parse_args()
 
     if args.list_experiments:
@@ -69,8 +87,13 @@ def process_args():
         np.random.seed(42)
 
     if args.randomize_dim != 0:
-        exp = generate_random_exp(args.randomize_dim)
+        exp = generate_random_exp(args.randomize_dim, args.sick_size)
     else:
         exp = load_experiment(args.experiment)
 
-    return exp, not args.no_mutation
+    params = {
+        "mutation": not args.no_mutation,
+        "unit_size": args.outbreak_size,
+    }
+
+    return exp, params
