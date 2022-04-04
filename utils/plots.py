@@ -21,7 +21,7 @@ def single_variant_plot(ax, y, t, size, idx):
     ax.plot(t, y[:, idx + size], "--", linewidth=2, c="rosybrown")
     ax.plot(t, y[:, idx + size * 2], "--", linewidth=2, c="slategray")
     ax.plot(t, y[:, idx], c=cycle[(idx) % len(cycle)])
-    ax.legend(["S", f"$I_{{{idx}}}$", f"$W_{{{idx}}}$", f"$R_{{{idx}}}$"])
+    ax.legend(["S", f"$W_{{{idx}}}$", f"$R_{{{idx}}}$", f"$I_{{{idx}}}$"])
 
 
 def plot_results(y, t, pokedex):
