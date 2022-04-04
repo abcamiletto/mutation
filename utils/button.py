@@ -22,10 +22,11 @@ class customButton:
         row_labels = []
         for field in fields(self.variant):
             row_labels.append(field.name)
-            if field != "parent":
+            if field.name != "parent":
                 content.append([getattr(self.variant, field.name)])
             else:
-                content.append([getattr(self.variant, field.name) + 1])
+                parent = getattr(self.variant, field.name)
+                content.append([parent + 1 if parent is not None else parent])
 
         fig, ax = plt.subplots(figsize=(3, 2.25))
         ax.set_axis_off()
