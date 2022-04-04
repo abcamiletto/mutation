@@ -33,7 +33,9 @@ with left:
     beta = st.slider("Re-Illness Rate", 0.0, 1.0, 0.1)
     frequency = st.slider("Mutation Likelihood", 0.0, 1.0, 0.0)
 
-    unit_size = st.slider("Outbreak Size %", 0.0, 1.0, 0.1) if frequency else 1e-3
+    unit_size = (
+        st.slider("Outbreak Size, % of total population", 0.0, 1.0, 0.1) if frequency else 1e-3
+    )
 
 
 l, g, B, a, f, X0 = generate_exp_from_prior(dimension, lamda, gamma, beta, alpha, frequency)
