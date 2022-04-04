@@ -35,7 +35,7 @@ with left2:
     frequency = st.slider("Mutation Likelihood", 0.0, 1.0, 0.0)
 
     unit_size = st.slider("Outbreak Size, % of total population", 0.0, 1.0, 0.1)
-    sick_size = st.slider("Infected people at the beginning, % of total population", 0.0, 10.0, 0.1)
+    sick_size = st.slider("Infected people at the beginning, % of total population", 0.0, 10.0, 1.0)
 
 
 l, g, B, a, f, X0 = generate_exp_from_prior(
