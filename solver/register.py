@@ -16,6 +16,6 @@ class Variant:
 def create_register(l, g, B, a, f):
     variants = []
     for items in zip(l, g, np.diagonal(B), a, f):
-        items = [x.item() for x in items]
+        items = [round(x.item(), 5) for x in items]
         variants.append(Variant(*items, None))
     return variants

@@ -82,12 +82,12 @@ class System:
         real_idx = np.where(self.history[step] == X[idx + 1])
         self.pokedex.append(
             Variant(
-                self.l[-1].item(),
-                self.g[-1].item(),
-                self.B[-1, -1].item(),
-                self.a[-1].item(),
-                self.f[-1].item(),
-                real_idx[0].item() - 1,
+                round(self.l[-1].item(), 5),
+                round(self.g[-1].item(), 5),
+                round(self.B[-1, -1].item(), 5),
+                round(self.a[-1].item(), 5),
+                round(self.f[-1].item(), 5),
+                round(real_idx[0].item() - 1, 5),
             )
         )
 
