@@ -9,6 +9,7 @@ def generate_df_from_pokedex(pokedex, idx):
 
     df_pokedex = pd.DataFrame(pokedex)
     df_pokedex = df_pokedex.set_index("name", drop=True)
+    df_pokedex["parent"] += 1
     df_pokedex = df_pokedex.T
 
     if idx != 0:
