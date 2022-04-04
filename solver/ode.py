@@ -11,7 +11,7 @@ class System:
 
     UNIT = 1e-3  # definition of a single "person"
 
-    def __init__(self, X0, l, g, B, a, f, lenght, steps):
+    def __init__(self, X0, l, g, B, a, f, lenght, steps, mutation):
         # Storing Inputs
         self.X0 = X0
         self.l = l
@@ -21,6 +21,7 @@ class System:
         self.f = f
         self.lenght = lenght
         self.steps = steps
+        self.mutation = mutation
 
         # Helper Variables
         self.history = [X0] * steps
@@ -45,14 +46,15 @@ class System:
             self.add_to_history(i, X)
 
             # Spawning new variation
-            parents = self.check_spawning(X)
-            for parent in parents:
-                X = self.spawn_variant(X, idx=parent, step=i)
+            if self.mutation:
+                parents = self.check_spawning(X)
+                for parent in parents:
+                    X = self.spawn_variant(X, idx=parent, step=i)
 
-            # Deleting bad variation
-            extinct = self.check_deletion(X, step=i)
-            if extinct:
-                X = self.delete_state(X, extinct)
+                # Deleting bad variation
+                extinct = self.check_deletion(X, step=i)
+                if extinct:
+                    X = self.delete_state(X, extinct)
 
         # Format History ad posterium
         history = format_history(self.history)
