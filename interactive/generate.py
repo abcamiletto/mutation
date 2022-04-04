@@ -23,7 +23,7 @@ def generate_exp_from_prior(dim, l, g, B, a, f):
         l = np.ones((1, 1)) * l
         g = np.ones((1, 1)) * g
         a = np.ones((1, 1)) * a
-        f = np.ones((1, 1)) * f
+        f = (np.ones((1, 1)) * f).clip(min=1e-6)
         B = np.ones((1, 1)) * B
     # If we have different starting variation we differentiate between them
     else:
