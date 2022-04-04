@@ -3,7 +3,8 @@ import sys
 
 import yaml
 
-from .storing import generate_random_exp, load_experiment, yaml_file
+from .generate import generate_random_exp
+from .storing import load_experiment, yaml_file
 
 
 def process_args():

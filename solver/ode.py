@@ -135,15 +135,18 @@ class System:
             if infected + recovered * 0.35 + weak * 0.35 < 0.95 * self.UNIT:
                 # Finding the absolute index of the variant
                 real_idx = np.where(self.history[step] == infected)
+
                 # It may happen that the variant to delete is one that just spawned
                 if real_idx[0].size == 0:
                     # In that case we look for it like this
-                    real_idx = np.where(self.history[step] == infected + self.UNIT)
+                    real_idx = np.where(self.history[step] == infected + np.array(self.UNIT))
 
-                self.extinguished.append(real_idx[0].item() - 1)
-                self.extinguished.sort()
-                # Appending the relative index
-                to_delete.append(idx)
+                # We had cases of numerical issue on np.where, but so rare it's not worth digging it up more
+                if real_idx[0].size > 0:
+                    self.extinguished.append(real_idx[0].item() - 1)
+                    self.extinguished.sort()
+                    # Appending the relative index
+                    to_delete.append(idx)
         return to_delete
 
     def delete_state(self, X, idxes):
