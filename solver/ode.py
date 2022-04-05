@@ -84,7 +84,7 @@ class System:
         B = np.zeros((size + 1, size + 1))
         B[:size, :size] = self.B
         B[-1, :] = B[-2, :] + normal(size=(size + 1,)) / 10
-        B[:, -1] = B[:, -1] + normal(size=(size + 1,)) / 10
+        B[:, -1] = B[:, -2] + normal(size=(size + 1,)) / 10
         B[-1, -1] = 0
         self.B = B.clip(min=0)
 
