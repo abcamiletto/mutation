@@ -4,9 +4,8 @@ import numpy as np
 import streamlit as st
 
 st.set_page_config(page_title="Virus Simulator", layout="wide")
-from interactive.plots import plotly_results
-from interactive.settings import env_settings
-from interactive.util import df_from_pokedex
+from components import env_settings, show_pokedex, title, variant_setting
+from components.plots import plotly_results
 from solver.ode import System
 from solver.register import Variant
 from utils.generate import add_variant, build_starting_point, generate_exp_from_prior
@@ -17,35 +16,12 @@ np.random.seed(42)
 if "pool" not in st.session_state:
     st.session_state.pool = []
 
-col1, col2, col3, right = st.columns([3, 5, 2, 1.0])
-with col2:
-    st.write(
-        """# Virus Mutation Simulation
-    In this web app you will be able to configure and run various configuration of diseases!"""
-    )
-with right:
-    show_env = st.checkbox("PRO mode", value=False)
-
+show_env = title()
 unit_size, sick_size = env_settings(visible=show_env)
 
 st.write("#")
 left1, _, left2, center, right = st.columns([0.5, 0.01, 0.5, 0.05, 1])
-with left1:
-    st.write("### Variation Settings")
-    dimension = st.slider("Number of different variants to begin with", 1, 5, 1)
-
-    lamda = st.slider("Infectiousness", 0.0, 1.0, 0.6)
-    gamma = st.slider("Recovery Rate", 0.0, 1.0, 0.1)
-
-
-with left2:
-    alpha = st.slider("Antibodies Loss Rate", 0.0, 1.0, 0.1)
-    beta = st.slider("Re-Illness Rate", 0.0, 1.0, 0.1)
-    frequency = st.slider("Mutation Likelihood", 0.0, 1.0, 0.0)
-    if show_env:
-        if st.button("Add to Environment"):
-            v = Variant(lamda, gamma, beta, alpha, frequency)
-            st.session_state.pool.append(v)
+dimension, lamda, gamma, alpha, beta, frequency = variant_setting(left1, left2, show_env)
 
 
 l, g, B, a, f, X0 = generate_exp_from_prior(
@@ -83,10 +59,4 @@ with right:
     st.plotly_chart(fig)
 
 
-st.write("### Pokedex of Variations")
-
-idx = st.selectbox("Select the variant you want to take a closer look at", options)
-idx = options.index(idx)
-
-pokedex = df_from_pokedex(pokedex, idx)
-st.dataframe(pokedex)
+show_pokedex(pokedex, dim=dimension)

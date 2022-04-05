@@ -1,4 +1,5 @@
 import pandas as pd
+import streamlit as st
 
 
 def df_from_pokedex(pokedex, idx):
@@ -15,3 +16,13 @@ def df_from_pokedex(pokedex, idx):
         df_pokedex = df_pokedex[f"Variant {idx}"]
 
     return df_pokedex
+
+
+def show_pokedex(pokedex, dim):
+    st.write("### Pokedex of Variations")
+    options = ["All", *[f"Variant {i+1}" for i in range(dim)]]
+    idx = st.selectbox("Select the variant you want to take a closer look at", options)
+    idx = options.index(idx)
+
+    pokedex = df_from_pokedex(pokedex, idx)
+    st.dataframe(pokedex)
