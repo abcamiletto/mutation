@@ -4,6 +4,8 @@ import numpy as np
 import streamlit as st
 
 st.set_page_config(page_title="Virus Simulator", layout="wide")
+import time
+
 from components import show_pokedex, sidebar, title, variant_setting
 from components.plots import plotly_results
 from solver.ode import System
@@ -42,8 +44,14 @@ steps = 100
 lenght = 25
 # Solving the simulation
 mutation = bool(st.session_state.pool) or (frequency != 0)
+
+
+tic = time.time()
 system = System(X0, l, g, B, a, f, lenght, steps, mutation=mutation, unit_size=unit_size / 100)
 y, t, pokedex = system.solve()
+
+toc = time.time() - tic
+print(f"Time needed to simulate the model {toc:.3f}s")
 dimension = round((y.shape[-1] - 1) / 3)
 
 
