@@ -8,6 +8,7 @@ here = pathlib.Path(__file__).parent.parent
 sys.path.insert(0, str(here))
 
 from solver.model import pack, unpack
+from solver.register import Variant
 
 
 def generate_random_exp(dim, sick_size=0.1):
@@ -27,29 +28,21 @@ def generate_random_exp(dim, sick_size=0.1):
     return l, g, B, a, f, X0
 
 
-def generate_exp_from_prior(dim, l, g, B, a, f, sick_size=0.1):
-    """Generate random experiments of dimension dim from priors"""
-    if dim == 1:
-        l = np.ones((1, 1)) * l
-        g = np.ones((1, 1)) * g
-        a = np.ones((1, 1)) * a
-        f = (np.ones((1, 1)) * f).clip(min=1e-6)
-        B = np.ones((1, 1)) * B
-    # If we have different starting variation we differentiate between them
+def generate_var_from_prior(dim, l, g, B, a, f):
+    """Generate dim variants from priors"""
+    vars = []
+    rand = np.random.rand(dim, 5) / 10
+    if dim > 1:
+        for i in range(dim):
+            lamda = l + rand[i, 0]
+            gamma = g + rand[i, 1]
+            beta_self = B + rand[i, 4]
+            alpha = a + rand[i, 2]
+            freq = f + rand[i, 3]
+            vars.append(Variant(lamda, gamma, beta_self, alpha, freq))
     else:
-        l = l + np.random.rand(dim, 1) / 10
-        g = g + np.random.rand(dim, 1) / 10
-        a = a + np.random.rand(dim, 1) / 10
-        f = f + np.random.rand(dim, 1) / 10
-        B = B + np.random.rand(dim, dim) / 10
-
-    I0 = np.ones(dim) * sick_size / (dim)
-    S0 = 1 - I0.sum()
-    R0 = [0] * dim
-    W0 = [0] * dim
-
-    X0 = np.array([S0, *I0, *R0, *W0])
-    return l, g, B, a, f, X0
+        vars.append(Variant(l, g, B, a, f))
+    return vars
 
 
 def build_starting_point(variants, sick_size):

@@ -8,7 +8,7 @@ from components import show_pokedex, sidebar, title, variant_setting
 from components.plots import plotly_results
 from solver.ode import System
 from solver.register import Variant
-from utils.generate import add_variant, build_starting_point, generate_exp_from_prior
+from utils.generate import add_variant, build_starting_point, generate_var_from_prior
 
 random.seed(42)
 np.random.seed(42)
@@ -27,17 +27,15 @@ dimension, lamda, gamma, alpha, beta, frequency, idx_to_plot, susceptible = vari
 )
 
 
-l, g, B, a, f, X0 = generate_exp_from_prior(
-    dimension, lamda, gamma, beta, alpha, frequency, sick_size / 100
-)
-
+vars = generate_var_from_prior(dimension, lamda, gamma, beta, alpha, frequency)
+l, g, B, a, f, X0 = build_starting_point(st.session_state.pool or vars, sick_size / 100)
 if st.session_state.pool:
-    l, g, B, a, f, X0 = build_starting_point(st.session_state.pool, sick_size / 100)
-    var = Variant(lamda, gamma, beta, alpha, frequency)
-    if var != st.session_state.pool[-1]:
-        l, g, B, a, f, X0 = add_variant(
-            var, l, g, B, a, f, X0, rebalance=True, sick_size=sick_size / 100
-        )
+    if len(vars) != 1 or vars[0] != st.session_state.pool[-1]:
+        for var in vars:
+            l, g, B, a, f, X0 = add_variant(
+                var, l, g, B, a, f, X0, rebalance=True, sick_size=sick_size / 100
+            )
+
 
 # Defining the settings for the simulation
 steps = 100
