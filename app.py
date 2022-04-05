@@ -17,7 +17,8 @@ if "pool" not in st.session_state:
     st.session_state.pool = []
 
 show_env = title()
-unit_size, sick_size = env_settings(visible=show_env)
+with st.sidebar:
+    unit_size, sick_size = env_settings(visible=show_env)
 
 st.write("#")
 left1, _, left2, center, right = st.columns([0.5, 0.01, 0.5, 0.05, 1])
