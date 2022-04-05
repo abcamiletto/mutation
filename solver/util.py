@@ -43,6 +43,7 @@ def augment_parameters(l, g, B, a, f, timer, parent_idx):
 
 
 def delete_parameters(l, g, B, a, f, timer, idxes):
+    """Deleting parameters at given indexes"""
     l = np.delete(l, idxes, axis=0)
     g = np.delete(g, idxes, axis=0)
     a = np.delete(a, idxes, axis=0)

@@ -37,7 +37,6 @@ class System:
         X = self.X0
 
         for i in range(1, self.steps):
-
             # Calculating next step
             next_t = self.lenght * i / self.steps
             X = self.step(X, t, next_t)
