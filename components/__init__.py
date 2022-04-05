@@ -1,3 +1,4 @@
 from .pokedex import show_pokedex
-from .settings import sidebar, variant_setting
+from .settings import variant_setting
+from .sidebar import sidebar
 from .title import title
