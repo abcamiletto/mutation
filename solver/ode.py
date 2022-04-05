@@ -28,7 +28,7 @@ class System:
         self.history = [X0] * steps
         self.timer = np.random.exponential(scale=1 / self.f)  # Timers to spawn new variantsS
         self.extinguished = []  # Absolute index of extinguished variants
-        self.pokedex = create_register(l, g, B, a, f)
+        self.pokedex = create_register(l, g, B, a, f, X0)
 
     def solve(self):
         """Solving the ODEs"""
@@ -88,6 +88,7 @@ class System:
                 round(self.a[-1].item(), 5),
                 round(self.f[-1].item(), 5),
                 round(real_idx - 1, 5),
+                self.UNIT,
             )
         )
 

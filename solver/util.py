@@ -3,6 +3,8 @@ from dataclasses import dataclass
 import numpy as np
 from numpy.random import normal
 
+from .state import pack, unpack
+
 
 @dataclass
 class Variant:
@@ -12,14 +14,16 @@ class Variant:
     alpha: float
     frequency: float
     parent: int = None
+    I0: float = None
 
 
-def create_register(l, g, B, a, f):
+def create_register(l, g, B, a, f, X0):
     """Given parameters, it creates a pokedex of variants"""
+    _, I0, _, _ = unpack(X0)
     variants = []
-    for items in zip(l, g, np.diagonal(B), a, f):
+    for items in zip(l, g, np.diagonal(B), a, f, I0):
         items = [round(x.item(), 5) for x in items]
-        variants.append(Variant(*items, None))
+        variants.append(Variant(*items[:-1], None, items[-1]))
     return variants
 
 
