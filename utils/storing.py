@@ -37,15 +37,21 @@ def save_experiment(l, g, B, a, X0):
         yaml.dump(exps, f, default_flow_style=False)
 
 
-def load_experiment(exp):
+def load_experiment(exp=None, file=None):
     """Load experiment of index exp from yaml file"""
 
-    with open(str(yaml_file), "r") as f:
-        exps = yaml.load(f, Loader=yaml.FullLoader) or {}
+    # If the index of the experiment is given
+    if exp is not None:
+        with open(str(yaml_file), "r") as f:
+            exps = yaml.load(f, Loader=yaml.FullLoader) or {}
 
-    name = [key for key in exps][exp]
+        name = [key for key in exps][exp]
 
-    params = exps[name]
+        params = exps[name]
+    # If the parameters sets is given
+    elif file is not None:
+        params = file
+
     l, g, B, a, f = (
         params["lambda"],
         params["gamma"],
@@ -57,7 +63,7 @@ def load_experiment(exp):
     l = np.expand_dims(np.array(l), 1)
     g = np.expand_dims(np.array(g), 1)
     a = np.expand_dims(np.array(a), 1)
-    f = np.expand_dims(np.array(f), 1)
+    f = np.expand_dims(np.array(f), 1).clip(min=1e-6)
     B = np.array(B)
 
     X0 = np.array([*params["S0"], *params["I0"], *params["R0"], *params["W0"]])
