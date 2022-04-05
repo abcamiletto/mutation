@@ -7,14 +7,8 @@ yaml_file = pathlib.Path(__file__).parent.parent.joinpath("experiments.yaml")
 yaml_file.touch(exist_ok=True)
 
 
-def save_experiment(l, g, B, a, X0):
+def save_experiment(l, g, B, a, f, X0, returns=False):
     """Saving the current experiment into the experiments.yaml file"""
-
-    name = input("Input a name : ")
-
-    # Reading it
-    with open(str(yaml_file), "r") as f:
-        exps = yaml.load(f, Loader=yaml.FullLoader) or {}
 
     size = round((X0.shape[0] - 1) / 3)
     S0 = X0[0]
@@ -23,15 +17,23 @@ def save_experiment(l, g, B, a, X0):
     W0 = X0[size * 2 + 1 : size * 3 + 1]
 
     params = {
-        "lambda": l.tolist(),
-        "gamma": g.tolist(),
+        "lambda": l[:, -1].tolist(),
+        "gamma": g[:, -1].tolist(),
         "beta": B.tolist(),
-        "alpha": a.tolist(),
+        "alpha": a[:, -1].tolist(),
+        "frequency": f[:, -1].tolist(),
         "S0": [S0.item()],
         "I0": I0.tolist(),
         "R0": R0.tolist(),
         "W0": W0.tolist(),
     }
+    if returns:
+        return yaml.dump(params)
+
+    # Reading it
+    with open(str(yaml_file), "r") as f:
+        exps = yaml.load(f, Loader=yaml.FullLoader) or {}
+    name = input("Input a name : ")
     exps[name] = params
     with open(str(yaml_file), "w") as f:
         yaml.dump(exps, f, default_flow_style=False)
