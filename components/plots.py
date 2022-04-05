@@ -25,9 +25,6 @@ def single_plot(y, t, size, idx, healthy):
 def plotly_results(y, t, pokedex, idx=0, healthy=True):
     size = round((y.shape[-1] - 1) / 3)
 
-    row = size // 3 + 1
-    cols = 3
-
     if idx == 0:
         main_data, legend = main_plot(y, t, size, healthy)
         main_fig = px.line(main_data, x="time", y=legend)
@@ -35,11 +32,11 @@ def plotly_results(y, t, pokedex, idx=0, healthy=True):
         main_data, legend = single_plot(y, t, size, idx, healthy)
         main_fig = px.line(main_data, x="time", y=legend)
         main_fig.update_traces(
-            patch={"line": {"dash": "dot"}},
+            patch={"line": {"dash": "8px"}, "opacity": 0.7},
             selector={"legendgroup": f"W{idx}"},
         )
         main_fig.update_traces(
-            patch={"line": {"dash": "dot"}},
+            patch={"line": {"dash": "8px"}, "opacity": 0.7},
             selector={"legendgroup": f"R{idx}"},
         )
 
