@@ -14,14 +14,14 @@ def variant_setting(col1, col2):
         st.write("### Variation Settings")
         dimension = st.slider("Number of different variants to begin with", 1, 5, 1)
 
-        lamda = st.slider("Infectiousness", 0.0, 1.0, 0.6)
+        lamda = st.slider("Infectivity", 0.0, 1.0, 0.6)
         gamma = st.slider("Recovery Rate", 0.0, 1.0, 0.1)
         st.markdown("---")
 
     with col2:
-        alpha = st.slider("Antibodies Loss Rate", 0.0, 1.0, 0.1)
-        beta = st.slider("Re-Illness Rate", 0.0, 1.0, 0.1)
-        frequency = st.slider("Mutation Likelihood", 0.0, 1.0, 0.0)
+        alpha = st.slider("Immunity Loss Rate", 0.0, 1.0, 0.1)
+        beta = st.slider("Reinfection Rate", 0.0, 1.0, 0.1)
+        frequency = st.slider("Mutation Rate", 0.0, 1.0, 0.0)
 
         if st.button("Add to Environment"):
             v = Variant(lamda, gamma, beta, alpha, frequency)
