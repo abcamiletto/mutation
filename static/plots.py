@@ -9,7 +9,7 @@ def main_plot(ax, y, t, size):
     ax.plot(t, y[:, 1 : size + 1])
     ax.legend([*[f"$I_{{{i+1}}}$" for i in range(size)]])
     ax.set_ylabel("Population")
-    ax.set_title("All Variations")
+    ax.set_title("All Variants")
 
 
 def single_variant_plot(ax, y, t, size, idx):
@@ -18,7 +18,7 @@ def single_variant_plot(ax, y, t, size, idx):
     # Plotting
     ax.plot(t, y[:, idx + size], "--", linewidth=2, c="rosybrown")
     ax.plot(t, y[:, idx + size * 2], "--", linewidth=2, c="slategray")
-    ax.plot(t, y[:, idx], c=cycle[(idx) % len(cycle)])
+    ax.plot(t, y[:, idx], c=cycle[(idx - 1) % len(cycle)])
     ax.legend([f"$W_{{{idx}}}$", f"$R_{{{idx}}}$", f"$I_{{{idx}}}$"])
 
 
