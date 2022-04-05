@@ -7,8 +7,8 @@ import pandas as pd
 here = pathlib.Path(__file__).parent.parent
 sys.path.insert(0, str(here))
 
-from solver.model import pack, unpack
-from solver.register import Variant
+from solver.state import pack, unpack
+from solver.util import Variant
 
 
 def generate_random_exp(dim, sick_size=0.1):

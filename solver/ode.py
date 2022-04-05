@@ -2,8 +2,10 @@ import numpy as np
 from numpy.random import normal
 from scipy.integrate import solve_ivp
 
+from solver.state import append_state, delete_states, get_abs_idx
+
 from .model import model, pack, unpack
-from .register import Variant, create_register
+from .util import Variant, augment_parameters, create_register, delete_parameters
 
 
 class System:
@@ -72,24 +74,13 @@ class System:
     def spawn_variant(self, X, idx, step):
         """Spawn a new variant from parent idx"""
         # Extending model parameters
-        self.l = np.concatenate([self.l, self.l[idx] + normal(size=(1, 1)) / 10]).clip(min=0)
-        self.g = np.concatenate([self.g, self.g[idx] + normal(size=(1, 1)) / 10]).clip(min=0)
-        self.a = np.concatenate([self.a, self.a[idx] + normal(size=(1, 1)) / 10]).clip(min=0)
-        self.f = np.concatenate([self.f, self.f[idx] + normal(size=(1, 1)) / 10]).clip(min=1e-6)
-        self.timer = np.concatenate(
-            [self.timer, np.random.exponential(scale=1 / self.f[-1], size=(1, 1))]
+        self.l, self.g, self.B, self.a, self.f, self.timer = augment_parameters(
+            self.l, self.g, self.B, self.a, self.f, self.timer, idx
         )
 
-        size = self.B.shape[0]
-        B = np.zeros((size + 1, size + 1))
-        B[:size, :size] = self.B
-        B[-1, :] = B[-2, :] + normal(size=(size + 1,)) / 10
-        B[:, -1] = B[:, -2] + normal(size=(size + 1,)) / 10
-        B[-1, -1] = 0
-        self.B = B.clip(min=0)
-
         # Getting the real idx of the parent and updating the pokedex
-        real_idx = np.where(self.history[step] == X[idx + 1])
+        real_idx = get_abs_idx(self.history[step], X[idx + 1])
+
         self.pokedex.append(
             Variant(
                 round(self.l[-1].item(), 5),
@@ -97,20 +88,12 @@ class System:
                 round(self.B[-1, -1].item(), 5),
                 round(self.a[-1].item(), 5),
                 round(self.f[-1].item(), 5),
-                round(real_idx[0].item() - 1, 5),
+                round(real_idx - 1, 5),
             )
         )
 
         # Extending the state
-        S, I, R, W = unpack(X)
-
-        S = np.expand_dims(S, 1)
-        I[idx] -= self.UNIT
-        I = np.expand_dims(np.append(I, self.UNIT), 1)
-        R = np.expand_dims(np.append(R, 0), 1)
-        W = np.expand_dims(np.append(W, 0), 1)
-
-        X = pack([S, I, R, W])
+        X = append_state(X, idx, self.UNIT)
         return X
 
     def check_spawning(self, X):
@@ -134,37 +117,23 @@ class System:
         for idx, (infected, recovered, weak) in enumerate(zip(I, R, W)):
             if infected + recovered * 0.35 + weak * 0.35 < 0.95 * self.UNIT:
                 # Finding the absolute index of the variant
-                real_idx = np.where(self.history[step] == infected)
-
-                # It may happen that the variant to delete is one that just spawned
-                if real_idx[0].size == 0:
-                    # In that case we look for it like this
-                    real_idx = np.where(self.history[step] == infected + np.array(self.UNIT))
+                real_idx = get_abs_idx(self.history[step], infected, self.UNIT)
 
                 # We had cases of numerical issue on np.where, but so rare it's not worth digging it up more
-                if real_idx[0].size > 0:
-                    self.extinguished.append(real_idx[0].item() - 1)
-                    self.extinguished.sort()
-                    # Appending the relative index
-                    to_delete.append(idx)
+                self.extinguished.append(real_idx - 1)
+                self.extinguished.sort()
+                # Appending the relative index
+                to_delete.append(idx)
+
         return to_delete
 
     def delete_state(self, X, idxes):
         """Delete variants from state and parameters"""
-        self.l = np.delete(self.l, idxes, axis=0)
-        self.g = np.delete(self.g, idxes, axis=0)
-        self.a = np.delete(self.a, idxes, axis=0)
-        self.f = np.delete(self.f, idxes, axis=0)
-        self.timer = np.delete(self.timer, idxes, axis=0)
-        self.B = np.delete(self.B, idxes, axis=0)
-        self.B = np.delete(self.B, idxes, axis=1)
+        self.l, self.g, self.B, self.a, self.f, self.timer = delete_parameters(
+            self.l, self.g, self.B, self.a, self.f, self.timer, idxes
+        )
 
-        size = round((X.shape[0] - 1) / 3)
-        state_idx = []
-        for idx in idxes:
-            state_idx.extend([idx + 1, size + idx + 1, 2 * size + idx + 1])
-
-        X = np.delete(X, state_idx)
+        X = delete_states(X, idxes)
         return X
 
     def add_to_history(self, step, X):
@@ -175,14 +144,14 @@ class System:
 
         # Setting extinguished variants indexes to None
         for idx in self.extinguished:
-            complete_state[idx + 1] = None
-            complete_state[n_variants + idx + 1] = None
-            complete_state[2 * n_variants + idx + 1] = None
+            complete_state[idx + 1] = np.nan
+            complete_state[n_variants + idx + 1] = np.nan
+            complete_state[2 * n_variants + idx + 1] = np.nan
 
         # Filling the yet unused elements with the current state
         i = 0
         for j in range(len(complete_state)):
-            if complete_state[j] is not None:
+            if not np.isnan(complete_state[j]):
                 complete_state[j] = X[i].item()
                 i += 1
 
@@ -201,9 +170,9 @@ def format_history(history):
             diff = max_size - current_size
 
             S, I, R, W = unpack(X)
-            I = np.append(I, [None] * diff)
-            R = np.append(R, [None] * diff)
-            W = np.append(W, [None] * diff)
+            I = np.append(I, [np.nan] * diff)
+            R = np.append(R, [np.nan] * diff)
+            W = np.append(W, [np.nan] * diff)
             X = pack([S, I, R, W])
 
             history[idx] = X

@@ -9,8 +9,8 @@ import time
 from components import show_pokedex, sidebar, title, variant_setting
 from components.plots import plotly_results
 from solver.ode import System
-from solver.register import Variant
-from utils.generate import add_variant, build_starting_point, generate_var_from_prior
+from utils.generate import (add_variant, build_starting_point,
+                            generate_var_from_prior)
 
 random.seed(42)
 np.random.seed(42)
