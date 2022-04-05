@@ -2,7 +2,7 @@ import streamlit as st
 
 
 def title():
-    _, col2, _ = st.columns([3, 5, 3])
+    _, col2, _ = st.columns([1.5, 5, 1.5])
     with col2:
         st.write(
             """# Virus Mutation Simulation
