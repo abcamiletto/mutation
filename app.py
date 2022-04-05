@@ -27,9 +27,7 @@ with st.sidebar:
 #   VARIANT SETTINGS
 st.write("#")
 left1, _, left2, center, right = st.columns([0.5, 0.01, 0.5, 0.05, 1])
-dimension, lamda, gamma, alpha, beta, frequency, idx_to_plot, susceptible = variant_setting(
-    left1, left2
-)
+dimension, lamda, gamma, alpha, beta, frequency = variant_setting(left1, left2)
 
 #   GENERATING STARTING POINT
 vars = generate_var_from_prior(dimension, lamda, gamma, beta, alpha, frequency)
@@ -58,9 +56,12 @@ dimension = round((y.shape[-1] - 1) / 3)
 #   PLOTTING RESULTS
 with right:
     st.write("### Simulation Result")
-
+    options = ["All", *[f"Variant {i+1}" for i in range(dimension)]]
+    idx = st.selectbox("Which graph do you want to se?", options)
+    idx = options.index(idx)
+    susceptible = st.checkbox("Plot susceptible line", value=True)
     st.write("Here below you can see the interpolated solution, with the given parameters")
-    fig = plotly_results(y, t, pokedex, idx_to_plot, susceptible)
+    fig = plotly_results(y, t, pokedex, idx, susceptible)
     st.plotly_chart(fig)
 
 #   POKEDEX

@@ -30,10 +30,18 @@ def plotly_results(y, t, pokedex, idx=0, healthy=True):
 
     if idx == 0:
         main_data, legend = main_plot(y, t, size, healthy)
+        main_fig = px.line(main_data, x="time", y=legend)
     else:
         main_data, legend = single_plot(y, t, size, idx, healthy)
-
-    main_fig = px.line(main_data, x="time", y=legend)
+        main_fig = px.line(main_data, x="time", y=legend)
+        main_fig.update_traces(
+            patch={"line": {"dash": "dot"}},
+            selector={"legendgroup": f"W{idx}"},
+        )
+        main_fig.update_traces(
+            patch={"line": {"dash": "dot"}},
+            selector={"legendgroup": f"R{idx}"},
+        )
 
     # This styles the line
     main_fig.update_traces(line=dict(width=5))

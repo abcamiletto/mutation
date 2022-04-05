@@ -17,9 +17,6 @@ def variant_setting(col1, col2):
         lamda = st.slider("Infectiousness", 0.0, 1.0, 0.6)
         gamma = st.slider("Recovery Rate", 0.0, 1.0, 0.1)
         st.markdown("---")
-        options = ["All", *[f"Variant {i+1}" for i in range(dimension)]]
-        idx = st.selectbox("Which graph do you want to se?", options)
-        idx = options.index(idx)
 
     with col2:
         alpha = st.slider("Antibodies Loss Rate", 0.0, 1.0, 0.1)
@@ -32,10 +29,8 @@ def variant_setting(col1, col2):
 
         st.write("")
         st.markdown("---")
-        st.write("#")
-        susceptible = st.checkbox("Plot susceptible line", value=True)
 
-    return dimension, lamda, gamma, alpha, beta, frequency, idx, susceptible
+    return dimension, lamda, gamma, alpha, beta, frequency
 
 
 def sidebar():
@@ -49,7 +44,9 @@ def sidebar():
     st.write("")
     unit_size = st.slider("Outbreak Size, % of total population", 0.0, 1.0, 0.1)
 
-    st.file_uploader("Load from File for a finer control")
+    uploaded_file = st.file_uploader("Load from File for a finer control")
+    if uploaded_file is not None:
+        pass
 
     st.write("")
 
