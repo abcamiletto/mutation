@@ -8,7 +8,7 @@ sys.path.insert(0, str(here))
 from solver.register import Variant
 
 
-def variant_setting(col1, col2, show_env):
+def variant_setting(col1, col2):
 
     with col1:
         st.write("### Variation Settings")
@@ -21,17 +21,15 @@ def variant_setting(col1, col2, show_env):
         alpha = st.slider("Antibodies Loss Rate", 0.0, 1.0, 0.1)
         beta = st.slider("Re-Illness Rate", 0.0, 1.0, 0.1)
         frequency = st.slider("Mutation Likelihood", 0.0, 1.0, 0.0)
-        if show_env:
-            if st.button("Add to Environment"):
-                v = Variant(lamda, gamma, beta, alpha, frequency)
-                st.session_state.pool.append(v)
+
+        if st.button("Add to Environment"):
+            v = Variant(lamda, gamma, beta, alpha, frequency)
+            st.session_state.pool.append(v)
 
     return dimension, lamda, gamma, alpha, beta, frequency
 
 
-def env_settings(visible):
-    if not visible:
-        return 0.1, 1.0
+def sidebar():
 
     st.write("### Environment Settings")
     st.write("Set global settings of the environment")

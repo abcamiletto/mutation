@@ -4,7 +4,7 @@ import numpy as np
 import streamlit as st
 
 st.set_page_config(page_title="Virus Simulator", layout="wide")
-from components import env_settings, show_pokedex, title, variant_setting
+from components import show_pokedex, sidebar, title, variant_setting
 from components.plots import plotly_results
 from solver.ode import System
 from solver.register import Variant
@@ -16,13 +16,13 @@ np.random.seed(42)
 if "pool" not in st.session_state:
     st.session_state.pool = []
 
-show_env = title()
+title()
 with st.sidebar:
-    unit_size, sick_size = env_settings(visible=show_env)
+    unit_size, sick_size = sidebar()
 
 st.write("#")
 left1, _, left2, center, right = st.columns([0.5, 0.01, 0.5, 0.05, 1])
-dimension, lamda, gamma, alpha, beta, frequency = variant_setting(left1, left2, show_env)
+dimension, lamda, gamma, alpha, beta, frequency = variant_setting(left1, left2)
 
 
 l, g, B, a, f, X0 = generate_exp_from_prior(
