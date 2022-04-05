@@ -3,7 +3,7 @@ import random
 import numpy as np
 import streamlit as st
 
-from utils.storing import load_experiment
+from utils.storing import load_experiment, save_experiment
 
 st.set_page_config(page_title="Virus Simulator", layout="wide")
 import time
@@ -62,6 +62,10 @@ y, t, pokedex = system.solve()
 toc = time.time() - tic
 print(f"Time needed to simulate the model {toc:.3f}s")
 dimension = round((y.shape[-1] - 1) / 3)
+
+with st.sidebar:
+    file = save_experiment(l, g, B, a, f, X0, returns=True)
+    st.download_button("Download Current Experiment", file, file_name="current_exp.yaml")
 
 #   PLOTTING RESULTS
 with right:
