@@ -17,4 +17,4 @@ y, t, pokedex = system.solve()
 fig = plot_results(y, t, pokedex)
 
 if input("Do you want to save the settings of the experiments? [y/N] ") == "y":
-    save_experiment(l, g, B, a, X0)
+    save_experiment(l, g, B, a, f, X0)
