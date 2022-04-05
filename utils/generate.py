@@ -63,7 +63,11 @@ def add_variant(variant, l, g, B, a, f, X0, rebalance=False, sick_size=0.1, unit
     g = np.concatenate([g, np.full((1, 1), variant.gamma)]).clip(min=0)
     a = np.concatenate([a, np.full((1, 1), variant.alpha)]).clip(min=0)
     f = np.concatenate([f, np.full((1, 1), variant.frequency)]).clip(min=1e-6)
-    B = np.diag(np.concatenate([np.diagonal(B), np.full((1,), variant.beta_self)])).clip(min=0)
+
+    size = B.shape[0]
+    new_B = np.ones((size + 1, size + 1)) * 0.2
+    new_diagonal = np.concatenate([np.diagonal(B), np.full((1,), variant.beta_self)])
+    B = np.fill_diagonal(new_B, new_diagonal)
 
     S, I, R, W = unpack(X0)
 
