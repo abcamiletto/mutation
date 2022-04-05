@@ -1,18 +1,11 @@
 import pathlib
 import sys
-from dataclasses import dataclass
 
 import streamlit as st
 
-
-@dataclass
-class Variant:
-    lamda: float
-    gamma: float
-    beta_self: float
-    alpha: float
-    frequency: float
-    parent: int = None
+here = pathlib.Path(__file__).parent.parent
+sys.path.insert(0, str(here))
+from solver.register import Variant
 
 
 def variant_setting(col1, col2):
