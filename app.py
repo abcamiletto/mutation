@@ -22,7 +22,9 @@ with st.sidebar:
 
 st.write("#")
 left1, _, left2, center, right = st.columns([0.5, 0.01, 0.5, 0.05, 1])
-dimension, lamda, gamma, alpha, beta, frequency = variant_setting(left1, left2)
+dimension, lamda, gamma, alpha, beta, frequency, idx_to_plot, susceptible = variant_setting(
+    left1, left2
+)
 
 
 l, g, B, a, f, X0 = generate_exp_from_prior(
@@ -49,15 +51,10 @@ dimension = round((y.shape[-1] - 1) / 3)
 
 with right:
     st.write("### Simulation Result")
-    # Plotting results
-    options = ["All", *[f"Variant {i+1}" for i in range(dimension)]]
-    idx = st.selectbox("Which graph do you want to see?", options)
-    idx = options.index(idx)
 
-    healthy = st.checkbox("Plot healthy line", value=True)
-
-    fig = plotly_results(y, t, pokedex, idx, healthy)
+    st.write("Here below you can see the interpolated solution, with the given parameters")
+    fig = plotly_results(y, t, pokedex, idx_to_plot, susceptible)
     st.plotly_chart(fig)
 
-
+st.write("#")
 show_pokedex(pokedex, dim=dimension)

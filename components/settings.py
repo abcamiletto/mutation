@@ -16,6 +16,10 @@ def variant_setting(col1, col2):
 
         lamda = st.slider("Infectiousness", 0.0, 1.0, 0.6)
         gamma = st.slider("Recovery Rate", 0.0, 1.0, 0.1)
+        st.markdown("---")
+        options = ["All", *[f"Variant {i+1}" for i in range(dimension)]]
+        idx = st.selectbox("Which graph do you want to se?", options)
+        idx = options.index(idx)
 
     with col2:
         alpha = st.slider("Antibodies Loss Rate", 0.0, 1.0, 0.1)
@@ -26,7 +30,12 @@ def variant_setting(col1, col2):
             v = Variant(lamda, gamma, beta, alpha, frequency)
             st.session_state.pool.append(v)
 
-    return dimension, lamda, gamma, alpha, beta, frequency
+        st.write("")
+        st.markdown("---")
+        st.write("#")
+        susceptible = st.checkbox("Plot susceptible line", value=True)
+
+    return dimension, lamda, gamma, alpha, beta, frequency, idx, susceptible
 
 
 def sidebar():
@@ -35,7 +44,7 @@ def sidebar():
     st.write("Set global settings of the environment")
 
     st.write("")
-    sick_size = st.slider("Infected people at the beginning, % of total population", 0.0, 10.0, 1.0)
+    sick_size = st.slider("Infected people at the start, % of total population", 0.0, 10.0, 1.0)
 
     st.write("")
     unit_size = st.slider("Outbreak Size, % of total population", 0.0, 1.0, 0.1)
