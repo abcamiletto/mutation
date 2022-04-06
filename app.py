@@ -46,16 +46,17 @@ else:
         variants=st.session_state.pool or user_variants,
         sick_size=sick_size / 100 if override_I0 else None,
     )
-    # If we have a pool of variants saved, we then add the one currently defined by the user
-    if st.session_state.pool:
-        if len(user_variants) != 1 or user_variants[0] != st.session_state.pool[-1]:
-            for var in user_variants:
-                starting_point = add_variant(
-                    var,
-                    *starting_point,
-                    sick_size=sick_size / 100 if override_I0 else None,
-                    unit=var.I0,  # overriden by sick_size
-                )
+# If we have a pool of variants saved, we then add the one currently defined by the user
+# The same if instead of a pool of variants we have uplaoded an experiment
+if st.session_state.pool or uploaded_file:
+    if uploaded_file or (user_variants[0] != st.session_state.pool[-1]):
+        for var in user_variants:
+            starting_point = add_variant(
+                var,
+                *starting_point,
+                sick_size=sick_size / 100 if override_I0 else None,
+                unit=var.I0,  # overriden by sick_size
+            )
 
 #   DISPLAYING INFO ABOUT SAVED VARIANTS
 pool_lenght = len(st.session_state.pool)
