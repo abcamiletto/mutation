@@ -69,14 +69,15 @@ if pool_lenght:
 steps = sim_lenght * 4
 mutation = bool(st.session_state.pool) or (user_variants[0].frequency != 0) or (uploaded_file)
 
+tic = time.perf_counter()
 #   SOLVING THE MODEL
 l, g, B, a, f, X0 = starting_point
-tic = time.perf_counter()
 system = System(X0, l, g, B, a, f, sim_lenght, steps, mutation=mutation, unit_size=unit_size / 100)
 y, t, pokedex = system.solve()
+dimension = round((y.shape[-1] - 1) / 3)
+
 toc = time.perf_counter() - tic
 print(f"Time needed to simulate the model {toc:.3f}s")
-dimension = round((y.shape[-1] - 1) / 3)
 
 with st.sidebar:
     st.write("#### Save Experiment ")
@@ -85,13 +86,17 @@ with st.sidebar:
     with center:
         st.download_button("Download Current Experiment", file, file_name="current_exp.yaml")
 
+
 #   PLOTTING RESULTS
 with right:
     options = ["All", *[f"Variant {i+1}" for i in range(dimension)]]
     idx = st.selectbox("Which graph do you want to see?", options)
     idx = options.index(idx)
     susceptible = st.checkbox("Plot susceptible line", value=True)
+    tic = time.perf_counter()
     fig = plotly_results(y, t, pokedex, idx, susceptible)
+    toc = time.perf_counter() - tic
+    print(f"Time needed to plot the results {toc:.3f}s")
     st.plotly_chart(fig)
 
 #   POKEDEX
