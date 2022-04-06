@@ -5,7 +5,7 @@ from scipy.integrate import solve_ivp
 from solver.state import append_state, delete_states, get_abs_idx
 
 from .model import model, pack, unpack
-from .util import Variant, augment_parameters, create_register, delete_parameters
+from .params_util import augment_parameters, create_register, delete_parameters, get_last_variant
 
 
 class System:
@@ -54,7 +54,7 @@ class System:
                 # Deleting bad variation
                 extinct = self.check_deletion(X, step=i)
                 if extinct:
-                    X = self.delete_state(X, extinct)
+                    X = self.delete_variant(X, extinct)
 
         # Format History ad posterium
         history = format_history(self.history)
@@ -68,32 +68,6 @@ class System:
         """Single RK45 step of ODEs"""
         sol = solve_ivp(model, (t, next_t), X, args=(self.l, self.g, self.a, self.B))
         X = sol.y[:, -1]
-        return X
-
-    def spawn_variant(self, X, idx, step):
-        """Spawn a new variant from parent idx"""
-        # Extending model parameters
-        self.l, self.g, self.B, self.a, self.f, self.timer = augment_parameters(
-            self.l, self.g, self.B, self.a, self.f, self.timer, idx
-        )
-
-        # Getting the real idx of the parent and updating the pokedex
-        real_idx = get_abs_idx(self.history[step], X[idx + 1])
-
-        self.pokedex.append(
-            Variant(
-                round(self.l[-1].item(), 5),
-                round(self.g[-1].item(), 5),
-                round(self.B[-1, -1].item(), 5),
-                round(self.a[-1].item(), 5),
-                round(self.f[-1].item(), 5),
-                round(real_idx - 1, 5),
-                self.UNIT,
-            )
-        )
-
-        # Extending the state
-        X = append_state(X, idx, self.UNIT)
         return X
 
     def check_spawning(self, X):
@@ -120,19 +94,30 @@ class System:
                 real_idx = get_abs_idx(self.history[step], infected, self.UNIT)
 
                 # We had cases of numerical issue on np.where, but so rare it's not worth digging it up more
-                self.extinguished.append(real_idx - 1)
+                self.extinguished.append(real_idx)
                 self.extinguished.sort()
                 # Appending the relative index
                 to_delete.append(idx)
 
         return to_delete
 
-    def delete_state(self, X, idxes):
-        """Delete variants from state and parameters"""
-        self.l, self.g, self.B, self.a, self.f, self.timer = delete_parameters(
-            self.l, self.g, self.B, self.a, self.f, self.timer, idxes
-        )
+    def spawn_variant(self, X, idx, step):
+        """Spawn a new variant from parent idx"""
+        # Extending model parameters
+        self.parameters = augment_parameters(*self.parameters, idx)
 
+        # Getting the real idx of the parent and updating the pokedex
+        real_idx = get_abs_idx(self.history[step], X[idx + 1])
+
+        self.pokedex.append(get_last_variant(*self.parameters, real_idx + 1, self.UNIT))
+
+        # Extending the state
+        X = append_state(X, idx, self.UNIT)
+        return X
+
+    def delete_variant(self, X, idxes):
+        """Delete variants from state and parameters"""
+        self.parameters = delete_parameters(*self.parameters, idxes)
         X = delete_states(X, idxes)
         return X
 
@@ -152,10 +137,22 @@ class System:
         i = 0
         for j in range(len(complete_state)):
             if not np.isnan(complete_state[j]):
-                complete_state[j] = X[i].item()
+                complete_state[j] = X[i]
                 i += 1
 
         self.history[step] = np.array(complete_state)
+
+    @property
+    def parameters(self):
+        """Return a list with all the parameter, in a specific order"""
+        return [self.l, self.g, self.B, self.a, self.f, self.timer]
+
+    @parameters.setter
+    def parameters(self, params):
+        """Rebuild the attributes of original parameters"""
+        order = ["l", "g", "B", "a", "f", "timer"]
+        for name, param in zip(order, params):
+            setattr(self, name, param)
 
 
 def format_history(history):
