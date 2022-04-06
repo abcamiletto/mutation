@@ -3,10 +3,10 @@ import numpy as np
 
 def unpack(X):
     size = round((X.shape[0] - 1) / 3)
-    S = np.expand_dims(X[0], 0)
-    I = np.expand_dims(X[1 : size + 1], 1)
-    R = np.expand_dims(X[size + 1 : size * 2 + 1], 1)
-    W = np.expand_dims(X[size * 2 + 1 : size * 3 + 1], 1)
+    S = X[0, None]  # equivalent of S = np.expand_dims(X[0], 1)
+    I = X[1 : size + 1, None]
+    R = X[size + 1 : size * 2 + 1, None]
+    W = X[size * 2 + 1 : size * 3 + 1, None]
     return S, I, R, W
 
 
@@ -44,6 +44,9 @@ def get_abs_idx(abs_state, infected, unit=0):
     """Given the history state, we recover the absolute index of that variant from its value"""
     # Finding the absolute index of the variant
     # We use ranges and not equalities because of some numerical inconsistencies
+    size = round((len(abs_state) - 1) / 3)
+    abs_state = abs_state[1 : size + 1]
+
     upper_b = infected + 1e-9
     lower_b = infected - 1e-9
 
