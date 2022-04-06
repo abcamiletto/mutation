@@ -7,8 +7,8 @@ import pandas as pd
 here = pathlib.Path(__file__).parent.parent
 sys.path.insert(0, str(here))
 
+from solver.params_util import Variant, augment_beta
 from solver.state import pack, unpack
-from solver.util import Variant
 
 
 def generate_random_exp(dim, sick_size=0.1):
@@ -28,21 +28,21 @@ def generate_random_exp(dim, sick_size=0.1):
     return l, g, B, a, f, X0
 
 
-def generate_var_from_prior(dim, l, g, B, a, f, I0):
-    """Generate dim variants from priors"""
+def generate_from_prior(dim, prior):
+    """Generate dim variants from prior"""
     vars = []
     rand = np.random.rand(dim, 6) / 10
     if dim > 1:
         for i in range(dim):
-            lamda = l + rand[i, 0]
-            gamma = g + rand[i, 1]
-            beta_self = B + rand[i, 2]
-            alpha = a + rand[i, 3]
-            freq = f + rand[i, 4]
-            i = I0
+            lamda = prior.lamda + rand[i, 0]
+            gamma = prior.gamma + rand[i, 1]
+            beta_self = prior.beta_self + rand[i, 2]
+            alpha = prior.alpha + rand[i, 3]
+            freq = prior.frequency + rand[i, 4] if prior.frequency != 0 else 0
+            i = prior.I0
             vars.append(Variant(lamda, gamma, beta_self, alpha, freq, None, i))
     else:
-        vars.append(Variant(l, g, B, a, f, None, I0))
+        vars.append(prior)
     return vars
 
 
@@ -66,10 +66,7 @@ def add_variant(variant, l, g, B, a, f, X0, sick_size=None, unit=1e-3):
     a = np.concatenate([a, np.full((1, 1), variant.alpha)]).clip(min=0)
     f = np.concatenate([f, np.full((1, 1), variant.frequency)]).clip(min=1e-6)
 
-    size = B.shape[0]
-    new_diagonal = np.concatenate([np.diagonal(B), np.full((1,), variant.beta_self)])
-    B = np.ones((size + 1, size + 1)) * 0.2
-    np.fill_diagonal(B, new_diagonal)
+    B = augment_beta(B, l, beta_self=variant.beta_self)
 
     S, I, R, W = unpack(X0)
 
