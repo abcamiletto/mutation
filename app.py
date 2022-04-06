@@ -63,7 +63,7 @@ else:
 
 #   SIMULATION SETTINGS
 steps = sim_lenght * 4
-mutation = bool(st.session_state.pool) or (frequency != 0)
+mutation = bool(st.session_state.pool) or (frequency != 0) or (uploaded_file)
 
 #   SOLVING THE MODEL
 tic = time.time()
