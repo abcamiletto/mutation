@@ -28,37 +28,39 @@ def generate_random_exp(dim, sick_size=0.1):
     return l, g, B, a, f, X0
 
 
-def generate_var_from_prior(dim, l, g, B, a, f):
+def generate_var_from_prior(dim, l, g, B, a, f, I0):
     """Generate dim variants from priors"""
     vars = []
-    rand = np.random.rand(dim, 5) / 10
+    rand = np.random.rand(dim, 6) / 8
     if dim > 1:
         for i in range(dim):
             lamda = l + rand[i, 0]
             gamma = g + rand[i, 1]
-            beta_self = B + rand[i, 4]
-            alpha = a + rand[i, 2]
-            freq = f + rand[i, 3]
-            vars.append(Variant(lamda, gamma, beta_self, alpha, freq))
+            beta_self = B + rand[i, 2]
+            alpha = a + rand[i, 3]
+            freq = f + rand[i, 4]
+            i = I0 + rand[i, 5]
+            vars.append(Variant(lamda, gamma, beta_self, alpha, freq, None, i))
     else:
-        vars.append(Variant(l, g, B, a, f))
+        vars.append(Variant(l, g, B, a, f, None, I0))
     return vars
 
 
-def build_starting_point(variants, sick_size):
+def build_starting_point(variants, sick_size=None):
     var = variants[0]
     l = np.expand_dims(np.array(var.lamda), axis=(0, 1))
     g = np.expand_dims(np.array(var.gamma), axis=(0, 1))
     B = np.expand_dims(np.array(var.beta_self), axis=(0, 1))
     a = np.expand_dims(np.array(var.alpha), axis=(0, 1))
     f = np.expand_dims(np.array(var.frequency), axis=(0, 1)).clip(min=1e-6)
-    X0 = np.array([1 - sick_size, sick_size, 0, 0])
+    I0 = sick_size or var.I0
+    X0 = np.array([1 - I0, I0, 0, 0])
     for var in variants[1:]:
-        l, g, B, a, f, X0 = add_variant(var, l, g, B, a, f, X0, rebalance=True, sick_size=sick_size)
+        l, g, B, a, f, X0 = add_variant(var, l, g, B, a, f, X0, sick_size=sick_size, unit=I0)
     return l, g, B, a, f, X0
 
 
-def add_variant(variant, l, g, B, a, f, X0, rebalance=False, sick_size=0.1, unit=1e-3):
+def add_variant(variant, l, g, B, a, f, X0, sick_size=None, unit=1e-3):
     l = np.concatenate([l, np.full((1, 1), variant.lamda)]).clip(min=0)
     g = np.concatenate([g, np.full((1, 1), variant.gamma)]).clip(min=0)
     a = np.concatenate([a, np.full((1, 1), variant.alpha)]).clip(min=0)
@@ -72,7 +74,7 @@ def add_variant(variant, l, g, B, a, f, X0, rebalance=False, sick_size=0.1, unit
     S, I, R, W = unpack(X0)
 
     S = np.expand_dims(S, 1)
-    if rebalance:
+    if sick_size:
         I = np.ones(shape=(len(I) + 1, 1)) * sick_size / (len(I) + 1)
     else:
         I = np.expand_dims(np.append(I, unit), 1)

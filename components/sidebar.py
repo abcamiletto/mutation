@@ -11,10 +11,12 @@ def sidebar():
     sim_lenght = st.slider("Lenght of the simulation in weeks", 0, 100, 25)
 
     st.write("")
-    sick_size = st.slider("Infected people at the start, % of total population", 0.0, 10.0, 1.0)
+    unit_size = st.slider("Outbreak Size, % of total population", 0.0, 1.0, 0.1)
 
     st.write("")
-    unit_size = st.slider("Outbreak Size, % of total population", 0.0, 1.0, 0.1)
+    override_I0 = st.checkbox("Override Starting Size", value=False)
+
+    sick_size = st.slider("Infected people at the start, % of total population", 0.0, 10.0, 1.0)
 
     uploaded_file = st.file_uploader("Load from File for a finer control")
     if uploaded_file is not None:
@@ -33,4 +35,4 @@ def sidebar():
         if st.button("Undo") and len(st.session_state.pool) > 1:
             st.session_state.pool.pop()
 
-    return sim_lenght, unit_size, sick_size, uploaded_file
+    return sim_lenght, unit_size, sick_size, uploaded_file, override_I0

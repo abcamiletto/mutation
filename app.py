@@ -24,7 +24,7 @@ title()
 
 #   SIDEBAR
 with st.sidebar:
-    sim_lenght, unit_size, sick_size, uploaded_file = sidebar()
+    sim_lenght, unit_size, sick_size, uploaded_file, override_I0 = sidebar()
 
 #   VARIANT SETTINGS
 st.write("#")
@@ -35,19 +35,29 @@ with right:
     st.write("### Simulation Results")
 
 left1, _, left2, center, right = st.columns([0.5, 0.01, 0.5, 0.05, 1])
-dimension, lamda, gamma, alpha, beta, frequency = variant_setting(left1, left2)
+dimension, lamda, gamma, alpha, beta, frequency, I0 = variant_setting(left1, left2)
 
 #   GENERATING STARTING POINT
 if uploaded_file is not None:
     l, g, B, a, f, X0 = load_experiment(file=uploaded_file)
 else:
-    vars = generate_var_from_prior(dimension, lamda, gamma, beta, alpha, frequency)
-    l, g, B, a, f, X0 = build_starting_point(st.session_state.pool or vars, sick_size / 100)
+    vars = generate_var_from_prior(dimension, lamda, gamma, beta, alpha, frequency, I0)
+    l, g, B, a, f, X0 = build_starting_point(
+        st.session_state.pool or vars, sick_size / 100 if override_I0 else None
+    )
     if st.session_state.pool:
         if len(vars) != 1 or vars[0] != st.session_state.pool[-1]:
             for var in vars:
                 l, g, B, a, f, X0 = add_variant(
-                    var, l, g, B, a, f, X0, rebalance=True, sick_size=sick_size / 100
+                    var,
+                    l,
+                    g,
+                    B,
+                    a,
+                    f,
+                    X0,
+                    sick_size=sick_size / 100 if override_I0 else None,
+                    unit=var.I0,
                 )
 
 

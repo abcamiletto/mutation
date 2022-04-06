@@ -17,13 +17,13 @@ def variant_setting(col1, col2):
         alpha = st.slider("Immunity Loss Rate", 0.0, 1.0, 0.1)
 
     with col2:
-        I0 = st.slider("Starting Outbreak Size, % of total population", 0.0, 10.0, 1.0)
+        I0 = st.slider("Starting Outbreak Size, % of total population", 0.0, 10.0, 1.0) / 100
         beta = st.slider("Reinfection Rate", 0.0, 1.0, 0.1)
         frequency = st.slider("Mutation Rate", 0.0, 1.0, 0.0)
 
         st.write("#")
         if st.button("Add to Environment"):
-            v = Variant(lamda, gamma, beta, alpha, frequency)
+            v = Variant(lamda, gamma, beta, alpha, frequency, None, I0)
             st.session_state.pool.append(v)
 
-    return dimension, lamda, gamma, alpha, beta, frequency
+    return dimension, lamda, gamma, alpha, beta, frequency, I0
