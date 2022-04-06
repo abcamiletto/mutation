@@ -140,7 +140,7 @@ class System:
                 complete_state[j] = X[i]
                 i += 1
 
-        self.history[step] = np.array(complete_state)
+        self.history[step] = np.asarray(complete_state)
 
     @property
     def parameters(self):
