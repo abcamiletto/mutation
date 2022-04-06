@@ -71,10 +71,10 @@ mutation = bool(st.session_state.pool) or (user_variants[0].frequency != 0) or (
 
 #   SOLVING THE MODEL
 l, g, B, a, f, X0 = starting_point
-tic = time.time()
+tic = time.perf_counter()
 system = System(X0, l, g, B, a, f, sim_lenght, steps, mutation=mutation, unit_size=unit_size / 100)
 y, t, pokedex = system.solve()
-toc = time.time() - tic
+toc = time.perf_counter() - tic
 print(f"Time needed to simulate the model {toc:.3f}s")
 dimension = round((y.shape[-1] - 1) / 3)
 
