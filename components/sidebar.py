@@ -25,9 +25,8 @@ def sidebar():
 
         uploaded_file = yaml.load(bytes_data, Loader=yaml.FullLoader)
 
-    st.write("")
-
-    left, right = st.columns([1, 1])
+    st.write("#### Pool Control")
+    _, left, right, _ = st.columns([0.5, 1, 1, 0.5])
     with left:
         if st.button("Reset"):
             st.session_state.pool = []
