@@ -39,7 +39,7 @@ def generate_var_from_prior(dim, l, g, B, a, f, I0):
             beta_self = B + rand[i, 2]
             alpha = a + rand[i, 3]
             freq = f + rand[i, 4]
-            i = I0 + rand[i, 5]
+            i = I0
             vars.append(Variant(lamda, gamma, beta_self, alpha, freq, None, i))
     else:
         vars.append(Variant(l, g, B, a, f, None, I0))
