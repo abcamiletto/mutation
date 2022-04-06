@@ -5,7 +5,8 @@ import streamlit as st
 
 here = pathlib.Path(__file__).parent.parent
 sys.path.insert(0, str(here))
-from solver.util import Variant
+from solver.params_util import Variant
+from utils.generate import generate_from_prior
 
 
 def variant_setting(col1, col2):
@@ -21,9 +22,14 @@ def variant_setting(col1, col2):
         beta = st.slider("Reinfection Rate", 0.0, 1.0, 0.1)
         frequency = st.slider("Mutation Rate", 0.0, 1.0, 0.0)
 
-        st.write("#")
-        if st.button("Add to Environment"):
-            v = Variant(lamda, gamma, beta, alpha, frequency, None, I0)
-            st.session_state.pool.append(v)
+        variant = Variant(lamda, gamma, beta, alpha, frequency, None, I0)
 
-    return dimension, lamda, gamma, alpha, beta, frequency, I0
+        user_variants = generate_from_prior(dimension, variant)
+
+        st.write("#")
+        if st.button("Add to the Pool"):
+            st.session_state.pool.extend(user_variants)
+
+    # Creating a list of the variants currently defined by the user
+
+    return user_variants
