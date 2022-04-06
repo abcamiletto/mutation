@@ -31,7 +31,7 @@ def generate_random_exp(dim, sick_size=0.1):
 def generate_var_from_prior(dim, l, g, B, a, f, I0):
     """Generate dim variants from priors"""
     vars = []
-    rand = np.random.rand(dim, 6) / 8
+    rand = np.random.rand(dim, 6) / 10
     if dim > 1:
         for i in range(dim):
             lamda = l + rand[i, 0]
