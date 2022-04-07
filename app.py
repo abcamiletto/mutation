@@ -86,7 +86,7 @@ print(f"Time needed to simulate the model {toc:.3f}s")
 with st.sidebar:
     st.write("#### Save Experiment ")
     file = save_experiment(l, g, B, a, f, D, X0, returns=True)
-    _, center, _ = st.columns([1, 5, 1])
+    _, center, _ = st.columns([1, 9, 1])
     with center:
         st.download_button("Download Current Experiment", file, file_name="current_exp.yaml")
 
