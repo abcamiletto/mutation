@@ -46,6 +46,7 @@ else:
         variants=st.session_state.pool or user_variants,
         sick_size=sick_size / 100 if override_I0 else None,
     )
+
 # If we have a pool of variants saved, we then add the one currently defined by the user
 # The same if instead of a pool of variants we have uplaoded an experiment
 if st.session_state.pool or uploaded_file:
@@ -72,8 +73,11 @@ mutation = bool(st.session_state.pool) or (user_variants[0].frequency != 0) or (
 
 tic = time.perf_counter()
 #   SOLVING THE MODEL
-l, g, B, a, f, X0 = starting_point
-system = System(X0, l, g, B, a, f, sim_lenght, steps, mutation=mutation, unit_size=unit_size / 100)
+
+l, g, B, a, f, D, X0 = starting_point
+system = System(
+    X0, l, g, B, a, f, D, sim_lenght, steps, mutation=mutation, unit_size=unit_size / 100
+)
 y, t, pokedex = system.solve()
 dimension = round((y.shape[-1] - 1) / 3)
 
@@ -82,7 +86,7 @@ print(f"Time needed to simulate the model {toc:.3f}s")
 
 with st.sidebar:
     st.write("#### Save Experiment ")
-    file = save_experiment(l, g, B, a, f, X0, returns=True)
+    file = save_experiment(l, g, B, a, f, D, X0, returns=True)
     _, center, _ = st.columns([1, 5, 1])
     with center:
         st.download_button("Download Current Experiment", file, file_name="current_exp.yaml")
