@@ -5,6 +5,7 @@ import streamlit as st
 
 here = pathlib.Path(__file__).parent.parent
 sys.path.insert(0, str(here))
+
 from solver.params_util import Variant
 from utils.generate import generate_from_prior
 
@@ -21,8 +22,9 @@ def variant_setting(col1, col2):
         I0 = st.slider("Starting Outbreak Size, % of total population", 0.0, 10.0, 1.0) / 100
         beta = st.slider("Reinfection Rate", 0.0, 1.0, 0.1)
         frequency = st.slider("Mutation Rate", 0.0, 1.0, 0.0)
+        deathrate = st.slider("Mortality Rate", 0.0, 1.0, 0.1)
 
-        variant = Variant(lamda, gamma, beta, alpha, frequency, None, I0)
+        variant = Variant(lamda, gamma, beta, alpha, frequency, deathrate, 0, 0, None, I0)
 
         user_variants = generate_from_prior(dimension, variant)
 
