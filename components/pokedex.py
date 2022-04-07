@@ -25,4 +25,4 @@ def show_pokedex(pokedex, dim):
     idx = options.index(idx)
 
     pokedex = df_from_pokedex(pokedex, idx)
-    st.dataframe(pokedex)
+    st.dataframe(pokedex, height=400)
