@@ -63,7 +63,6 @@ if st.session_state.pool or uploaded_file:
 pool_lenght = len(st.session_state.pool)
 if pool_lenght:
     with left1:
-        st.write("#")
         st.markdown(f"  * **Variants** saved in the pool : {''.join(['I '] * pool_lenght)}")
 
 
