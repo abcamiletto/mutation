@@ -11,7 +11,7 @@ from .params_util import augment_parameters, create_register, delete_parameters,
 class System:
     """Wrapper class to store info about the system evolution"""
 
-    def __init__(self, X0, l, g, B, a, f, lenght, steps, mutation, unit_size=1e-3):
+    def __init__(self, X0, l, g, B, a, f, D, lenght, steps, mutation, unit_size=1e-3):
         # Storing Inputs
         self.X0 = X0
         self.l = l
@@ -19,6 +19,7 @@ class System:
         self.B = B
         self.a = a
         self.f = f
+        self.D = D
         self.lenght = lenght
         self.steps = steps
         self.mutation = mutation
@@ -28,7 +29,7 @@ class System:
         self.history = [X0] * steps
         self.timer = np.random.exponential(scale=1 / self.f)  # Timers to spawn new variantsS
         self.extinguished = []  # Absolute index of extinguished variants
-        self.pokedex = create_register(l, g, B, a, f, X0)
+        self.pokedex = create_register(l, g, B, a, f, D, X0)
 
     def solve(self):
         """Solving the ODEs"""
@@ -66,7 +67,7 @@ class System:
 
     def step(self, X, t, next_t):
         """Single RK45 step of ODEs"""
-        sol = solve_ivp(model, (t, next_t), X, args=(self.l, self.g, self.a, self.B))
+        sol = solve_ivp(model, (t, next_t), X, args=(self.l, self.g, self.a, self.B, self.D))
         X = sol.y[:, -1]
         return X
 
@@ -145,12 +146,12 @@ class System:
     @property
     def parameters(self):
         """Return a list with all the parameter, in a specific order"""
-        return [self.l, self.g, self.B, self.a, self.f, self.timer]
+        return [self.l, self.g, self.B, self.a, self.f, self.D, self.timer]
 
     @parameters.setter
     def parameters(self, params):
         """Rebuild the attributes of original parameters"""
-        order = ["l", "g", "B", "a", "f", "timer"]
+        order = ["l", "g", "B", "a", "f", "D", "timer"]
         for name, param in zip(order, params):
             setattr(self, name, param)
 

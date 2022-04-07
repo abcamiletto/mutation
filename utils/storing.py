@@ -7,7 +7,7 @@ yaml_file = pathlib.Path(__file__).parent.parent.joinpath("experiments.yaml")
 yaml_file.touch(exist_ok=True)
 
 
-def save_experiment(l, g, B, a, f, X0, returns=False):
+def save_experiment(l, g, B, a, f, D, X0, returns=False):
     """Saving the current experiment into the experiments.yaml file"""
 
     size = round((X0.shape[0] - 1) / 3)
@@ -22,6 +22,7 @@ def save_experiment(l, g, B, a, f, X0, returns=False):
         "beta": B.tolist(),
         "alpha": a[:, -1].tolist(),
         "frequency": f[:, -1].tolist(),
+        "deathrate": D.tolist(),
         "S0": [S0.item()],
         "I0": I0.tolist(),
         "R0": R0.tolist(),
@@ -54,12 +55,13 @@ def load_experiment(exp=None, file=None):
     elif file is not None:
         params = file
 
-    l, g, B, a, f = (
+    l, g, B, a, f, D = (
         params["lambda"],
         params["gamma"],
         params["beta"],
         params["alpha"],
         params["frequency"],
+        params["deathrate"],
     )
 
     l = np.expand_dims(np.array(l), 1)
@@ -67,7 +69,8 @@ def load_experiment(exp=None, file=None):
     a = np.expand_dims(np.array(a), 1)
     f = np.expand_dims(np.array(f), 1).clip(min=1e-6)
     B = np.array(B)
+    D = np.array(D)
 
     X0 = np.array([*params["S0"], *params["I0"], *params["R0"], *params["W0"]])
 
-    return l, g, B, a, f, X0
+    return l, g, B, a, f, D, X0

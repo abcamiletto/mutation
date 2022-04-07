@@ -28,7 +28,7 @@ class customButton:
                 parent = getattr(self.variant, field.name)
                 content.append([parent + 1 if parent is not None else parent])
 
-        fig, ax = plt.subplots(figsize=(3, 2.25))
+        fig, ax = plt.subplots(figsize=(4, 4.25))
         ax.set_axis_off()
         table = ax.table(
             cellText=content,

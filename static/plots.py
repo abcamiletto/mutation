@@ -32,7 +32,6 @@ def plot_results(y, t, pokedex):
     axes = axes.flatten()
 
     main_plot(axes[0], y, t, size)
-
     buttons = []
 
     for idx, ax in enumerate(axes[1:], start=1):

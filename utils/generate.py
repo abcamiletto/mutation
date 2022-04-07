@@ -18,6 +18,7 @@ def generate_random_exp(dim, sick_size=0.1):
     a = np.random.rand(dim, 1)
     f = np.random.rand(dim, 1).clip(min=1e-6)
     B = np.random.rand(dim, dim) / 100
+    D = np.random.rand(dim, 3) / 100
 
     I0 = np.ones(dim) * sick_size / (dim)
     S0 = 1 - I0.sum()
@@ -25,7 +26,7 @@ def generate_random_exp(dim, sick_size=0.1):
     W0 = [0] * dim
 
     X0 = np.array([S0, *I0, *R0, *W0])
-    return l, g, B, a, f, X0
+    return l, g, B, a, f, D, X0
 
 
 def generate_from_prior(dim, prior):
@@ -39,8 +40,9 @@ def generate_from_prior(dim, prior):
             beta_self = prior.beta_self + rand[i, 2]
             alpha = prior.alpha + rand[i, 3]
             freq = prior.frequency + rand[i, 4] if prior.frequency != 0 else 0
+            death = prior.dI + rand[i, 5]
             i = prior.I0
-            vars.append(Variant(lamda, gamma, beta_self, alpha, freq, None, i))
+            vars.append(Variant(lamda, gamma, beta_self, alpha, freq, death, 0, 0, None, i))
     else:
         vars.append(prior)
     return vars
@@ -53,20 +55,23 @@ def build_starting_point(variants, sick_size=None):
     B = np.expand_dims(np.array(var.beta_self), axis=(0, 1))
     a = np.expand_dims(np.array(var.alpha), axis=(0, 1))
     f = np.expand_dims(np.array(var.frequency), axis=(0, 1)).clip(min=1e-6)
+    D = np.expand_dims(np.array([var.dI, var.dR, var.dW]), axis=0)
+
     I0 = sick_size or var.I0
     X0 = np.array([1 - I0, I0, 0, 0])
     for var in variants[1:]:
-        l, g, B, a, f, X0 = add_variant(var, l, g, B, a, f, X0, sick_size=sick_size, unit=I0)
-    return l, g, B, a, f, X0
+        l, g, B, a, f, D, X0 = add_variant(var, l, g, B, a, f, D, X0, sick_size=sick_size, unit=I0)
+    return l, g, B, a, f, D, X0
 
 
-def add_variant(variant, l, g, B, a, f, X0, sick_size=None, unit=1e-3):
+def add_variant(variant, l, g, B, a, f, D, X0, sick_size=None, unit=1e-3):
     l = np.concatenate([l, np.full((1, 1), variant.lamda)]).clip(min=0)
     g = np.concatenate([g, np.full((1, 1), variant.gamma)]).clip(min=0)
     a = np.concatenate([a, np.full((1, 1), variant.alpha)]).clip(min=0)
     f = np.concatenate([f, np.full((1, 1), variant.frequency)]).clip(min=1e-6)
 
-    B = augment_beta(B, l, beta_self=variant.beta_self)
+    B = augment_beta(B, l, beta_self=variant.beta_self, add_noise=False)
+    D = np.concatenate([D, np.array([variant.dI, variant.dR, variant.dW])[None, ...]]).clip(min=0)
 
     S, I, R, W = unpack(X0)
 
@@ -79,4 +84,4 @@ def add_variant(variant, l, g, B, a, f, X0, sick_size=None, unit=1e-3):
     W = np.expand_dims(np.append(W, 0), 1)
 
     X0 = pack([S, I, R, W])
-    return l, g, B, a, f, X0
+    return l, g, B, a, f, D, X0
