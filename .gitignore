@@ -135,3 +135,4 @@ cython_debug/
 
 # Jupyter notebooks
 *.ipynb
+*.pkl
