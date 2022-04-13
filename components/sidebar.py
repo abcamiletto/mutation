@@ -8,7 +8,7 @@ def sidebar():
     st.write("Set global settings of the environment")
 
     st.write("")
-    sim_lenght = st.slider("Lenght of the simulation in weeks", 0, 100, 25)
+    sim_lenght = st.slider("Lenght of the simulation in weeks", 0, 250, 25)
 
     st.write("")
     unit_size = st.slider("Outbreak Size, % of total population", 0.0, 1.0, 0.1)
