@@ -75,10 +75,11 @@ def add_variant(variant, l, g, B, a, f, D, X0, sick_size=None, unit=1e-3):
 
     S, I, R, W = unpack(X0)
 
-    S = np.expand_dims(S, 1)
     if sick_size:
+        S = np.expand_dims(S, 1)
         I = np.ones(shape=(len(I) + 1, 1)) * sick_size / (len(I) + 1)
     else:
+        S = np.expand_dims(S - unit, 1)
         I = np.expand_dims(np.append(I, unit), 1)
     R = np.expand_dims(np.append(R, 0), 1)
     W = np.expand_dims(np.append(W, 0), 1)
