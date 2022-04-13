@@ -98,3 +98,23 @@ def process_args():
     }
 
     return exp, params
+
+
+def process_tournament_args():
+    description = "Genetic Tournament among variants. No mutation allowed."
+    parser = argparse.ArgumentParser(description=description)
+
+    parser.add_argument(
+        "-r",
+        "--rounds",
+        metavar="",
+        type=int,
+        default=10,
+        help="Subsequent rounds of the tournament, by default 10",
+    )
+
+    params = {
+        "mutation": False,
+    }
+
+    return params
