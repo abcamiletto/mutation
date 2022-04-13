@@ -67,7 +67,7 @@ if pool_lenght:
 
 
 #   SIMULATION SETTINGS
-steps = sim_lenght * 4
+steps = round(sim_lenght * 2)
 mutation = bool(st.session_state.pool) or (user_variants[0].frequency != 0) or (uploaded_file)
 
 tic = time.perf_counter()
