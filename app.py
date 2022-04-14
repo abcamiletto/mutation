@@ -50,7 +50,7 @@ else:
 # If we have a pool of variants saved, we then add the one currently defined by the user
 # The same if instead of a pool of variants we have uplaoded an experiment
 if st.session_state.pool or uploaded_file:
-    if uploaded_file or (user_variants[0] != st.session_state.pool[-1]):
+    if uploaded_file or (str(user_variants[0]) != str(st.session_state.pool[-1])):
         for var in user_variants:
             starting_point = add_variant(
                 var,

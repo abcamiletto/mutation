@@ -1,5 +1,6 @@
 import pathlib
 import sys
+from random import random
 
 import numpy as np
 import pandas as pd
@@ -60,7 +61,9 @@ def build_starting_point(variants, sick_size=None):
     I0 = sick_size or var.I0
     X0 = np.array([1 - I0, I0, 0, 0])
     for var in variants[1:]:
-        l, g, B, a, f, D, X0 = add_variant(var, l, g, B, a, f, D, X0, sick_size=sick_size, unit=I0)
+        l, g, B, a, f, D, X0 = add_variant(
+            var, l, g, B, a, f, D, X0, sick_size=sick_size, unit=var.I0
+        )
     return l, g, B, a, f, D, X0
 
 
@@ -72,7 +75,6 @@ def add_variant(variant, l, g, B, a, f, D, X0, sick_size=None, unit=1e-3):
 
     B = augment_beta(B, l, beta_self=variant.beta_self, add_noise=False)
     D = np.concatenate([D, np.array([variant.dI, variant.dR, variant.dW])[None, ...]]).clip(min=0)
-
     S, I, R, W = unpack(X0)
 
     if sick_size:
@@ -83,6 +85,22 @@ def add_variant(variant, l, g, B, a, f, D, X0, sick_size=None, unit=1e-3):
         I = np.expand_dims(np.append(I, unit), 1)
     R = np.expand_dims(np.append(R, 0), 1)
     W = np.expand_dims(np.append(W, 0), 1)
-
     X0 = pack([S, I, R, W])
     return l, g, B, a, f, D, X0
+
+
+def generate_random_vars(dim, sick_size=0.1):
+    """Generate random dim variants"""
+    vars = []
+    for i in range(dim):
+        lamda = random()
+        gamma = random()
+        beta_self = random()
+        alpha = random()
+        frequency = random()
+        dI = random()
+        I0 = sick_size / dim
+        var = Variant(lamda, gamma, beta_self, alpha, frequency, dI, I0=I0)
+        vars.append(var)
+
+    return vars
