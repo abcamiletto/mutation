@@ -113,8 +113,17 @@ def process_tournament_args():
         help="Subsequent rounds of the tournament, by default 10",
     )
 
-    params = {
-        "mutation": False,
-    }
+    parser.add_argument(
+        "-s",
+        "--starting_points",
+        metavar="",
+        type=int,
+        default=10,
+        help="Number of variants to start from",
+    )
 
-    return params
+    args = parser.parse_args()
+
+    params = {"mutation": False}
+
+    return args.rounds, args.starting_points, params
