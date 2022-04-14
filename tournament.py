@@ -10,7 +10,7 @@ from utils.args import process_tournament_args
 from utils.generate import build_starting_point, generate_from_prior, generate_random_vars
 
 
-def royal_rumble(variants):
+def royal_rumble(variants, fitness="letal"):
     starting_point = build_starting_point(
         variants=variants,
         sick_size=0.1,
@@ -22,11 +22,15 @@ def royal_rumble(variants):
     y, t, pokedex = system.solve()
 
     # Calculating the most letal one
-    infections = y[:, 1 : 1 + len(variants)].sum(axis=0)
-    death_rates = np.array([var.dI for var in variants])
-    deaths = infections * death_rates
+    if fitness == "letal":
+        infections = y[:, 1 : 1 + len(variants)].sum(axis=0)
+        death_rates = np.array([var.dI for var in variants])
+        deaths = infections * death_rates
+        idx_winner = np.argmax(deaths)
+    elif fitness == "illness":
+        infections = y[:, 1 : 1 + len(variants)].max(axis=0)
+        idx_winner = np.argmax(infections)
 
-    idx_winner = np.argmax(deaths)
     return variants[int(idx_winner)]
 
 
