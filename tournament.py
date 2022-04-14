@@ -11,10 +11,7 @@ from utils.generate import build_starting_point, generate_from_prior, generate_r
 
 
 def royal_rumble(variants, fitness="letal"):
-    starting_point = build_starting_point(
-        variants=variants,
-        sick_size=0.1,
-    )
+    starting_point = build_starting_point(variants=variants, sick_size=0.1, use_beta=False)
     sim_lenght = 25
     steps = sim_lenght * 2
     l, g, B, a, f, D, X0 = starting_point
@@ -27,7 +24,7 @@ def royal_rumble(variants, fitness="letal"):
         death_rates = np.array([var.dI for var in variants])
         deaths = infections * death_rates
         idx_winner = np.argmax(deaths)
-    elif fitness == "illness":
+    elif fitness == "contagious":
         infections = y[:, 1 : 1 + len(variants)].max(axis=0)
         idx_winner = np.argmax(infections)
 
