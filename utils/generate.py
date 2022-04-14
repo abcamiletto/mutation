@@ -30,7 +30,11 @@ def generate_random_exp(dim, sick_size=0.1):
     return l, g, B, a, f, D, X0
 
 
-def generate_from_prior(dim, prior):
+def clip_list(args, min, max):
+    return [arg.clip(min=min, max=max) for arg in args]
+
+
+def generate_from_prior(dim, prior, clipped=False):
     """Generate dim variants from prior"""
     vars = []
     rand = np.random.rand(dim, 6) / 10
@@ -43,6 +47,12 @@ def generate_from_prior(dim, prior):
             freq = prior.frequency + rand[i, 4] if prior.frequency != 0 else 0
             death = prior.dI + rand[i, 5]
             i = prior.I0
+
+            # Clipping values
+            if clipped:
+                attr = [lamda, gamma, beta_self, alpha, freq, death]
+                lamda, gamma, beta_self, alpha, freq, death = clip_list(attr, 0, 1)
+
             vars.append(Variant(lamda, gamma, beta_self, alpha, freq, death, 0, 0, None, i))
     else:
         vars.append(prior)
