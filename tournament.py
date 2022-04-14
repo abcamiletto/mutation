@@ -11,7 +11,7 @@ from utils.generate import build_starting_point, generate_from_prior, generate_r
 
 
 def royal_rumble(variants, fitness="letal"):
-    starting_point = build_starting_point(variants=variants, sick_size=0.1, use_beta=False)
+    starting_point = build_starting_point(variants=variants, sick_size=0.1)
     sim_lenght = 25
     steps = sim_lenght * 2
     l, g, B, a, f, D, X0 = starting_point
