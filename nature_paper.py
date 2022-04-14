@@ -17,8 +17,8 @@ steps = round(sim_lenght * 2)
 
 
 results = []
-i_range = 150
-j_range = 100
+i_range = 100
+j_range = 75
 max_l_ratio = 4
 max_I0_ratio = 2_000
 init_l = 0.3
