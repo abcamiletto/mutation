@@ -59,7 +59,7 @@ def generate_from_prior(dim, prior, clipped=False):
     return vars
 
 
-def build_starting_point(variants, sick_size=None):
+def build_starting_point(variants, sick_size=None, use_beta=True):
     var = variants[0]
     l = np.expand_dims(np.array(var.lamda), axis=(0, 1))
     g = np.expand_dims(np.array(var.gamma), axis=(0, 1))
@@ -72,18 +72,19 @@ def build_starting_point(variants, sick_size=None):
     X0 = np.array([1 - I0, I0, 0, 0])
     for var in variants[1:]:
         l, g, B, a, f, D, X0 = add_variant(
-            var, l, g, B, a, f, D, X0, sick_size=sick_size, unit=var.I0
+            var, l, g, B, a, f, D, X0, sick_size=sick_size, unit=var.I0, use_beta=use_beta
         )
     return l, g, B, a, f, D, X0
 
 
-def add_variant(variant, l, g, B, a, f, D, X0, sick_size=None, unit=1e-3):
+def add_variant(variant, l, g, B, a, f, D, X0, sick_size=None, unit=1e-3, use_beta=True):
     l = np.concatenate([l, np.full((1, 1), variant.lamda)]).clip(min=0)
     g = np.concatenate([g, np.full((1, 1), variant.gamma)]).clip(min=0)
     a = np.concatenate([a, np.full((1, 1), variant.alpha)]).clip(min=0)
     f = np.concatenate([f, np.full((1, 1), variant.frequency)]).clip(min=1e-6)
 
-    B = augment_beta(B, l, beta_self=variant.beta_self, add_noise=False)
+    beta_self = variant.beta_self if use_beta else None
+    B = augment_beta(B, l, beta_self=beta_self, add_noise=False)
     D = np.concatenate([D, np.array([variant.dI, variant.dR, variant.dW])[None, ...]]).clip(min=0)
     S, I, R, W = unpack(X0)
 

@@ -47,7 +47,9 @@ def augment_beta(B, l, parent_idx=None, beta_self=None, add_noise=True):
     if parent_idx:
         B[parent_idx, -1] = B[parent_idx, -1] / 2
         B[-1, parent_idx] = B[-1, parent_idx] / 2
-    B[-1, -1] = beta_self or np.random.uniform(size=(1,)) / 7
+
+    B[-1, -1] = beta_self or ((np.random.uniform(size=(1,)) if add_noise else 0.5) * l[-1] / 7)
+
     return B.clip(min=0)
 
 
