@@ -38,7 +38,7 @@ def grouper(list_, n):
 if __name__ == "__main__":
     rounds, dimension, params = process_tournament_args()
     # We start with N vars
-    init_variants = generate_random_vars(dim=dimension)
+    init_variants = generate_random_vars(dim=dimension, sick_size=0.1, mutation=False)
 
     for i in tqdm(range(rounds)):
         pool = deepcopy(init_variants)
