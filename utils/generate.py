@@ -4,6 +4,7 @@ from random import random
 
 import numpy as np
 import pandas as pd
+from numpy.random import normal
 
 here = pathlib.Path(__file__).parent.parent
 sys.path.insert(0, str(here))
@@ -37,7 +38,7 @@ def clip_list(args, min, max):
 def generate_from_prior(dim, prior, clipped=False):
     """Generate dim variants from prior"""
     vars = []
-    rand = np.random.rand(dim, 6) / 10
+    rand = normal(size=(dim, 6)) / 10
     if dim > 1:
         for i in range(dim):
             lamda = prior.lamda + rand[i, 0]
@@ -45,7 +46,7 @@ def generate_from_prior(dim, prior, clipped=False):
             beta_self = prior.beta_self + rand[i, 2]
             beta_self = beta_self if (beta_self < lamda) else lamda
             alpha = prior.alpha + rand[i, 3]
-            freq = prior.frequency + rand[i, 4] if prior.frequency != 0 else 0
+            freq = prior.frequency + rand[i, 4] if prior.frequency != 0 else np.array(0.0)
             death = prior.dI + rand[i, 5]
             i = prior.I0
 
@@ -100,7 +101,7 @@ def add_variant(variant, l, g, B, a, f, D, X0, sick_size=None, unit=1e-3):
     return l, g, B, a, f, D, X0
 
 
-def generate_random_vars(dim, sick_size=0.1):
+def generate_random_vars(dim, sick_size=0.1, mutation=True):
     """Generate random dim variants"""
     vars = []
     for i in range(dim):
@@ -109,7 +110,7 @@ def generate_random_vars(dim, sick_size=0.1):
         beta_self = random()
         beta_self = beta_self if (beta_self < lamda) else lamda
         alpha = random()
-        frequency = random()
+        frequency = random() if mutation else 0
         dI = random()
         I0 = sick_size / dim
         var = Variant(lamda, gamma, beta_self, alpha, frequency, dI, I0=I0)
