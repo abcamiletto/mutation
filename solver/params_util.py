@@ -8,6 +8,7 @@ from .state import pack, unpack
 BETA_RED_DIAGONAL = 4
 BETA_RED_PARENT = 2
 BETA_RED_ANY = 1.25
+NOISE_STD = 0.1
 
 
 @dataclass
@@ -61,16 +62,16 @@ def augment_beta(B, beta_self, parent_idx=None):
 
 def augment_parameters(l, g, B, a, f, D, timer, parent_idx):
     """Adding new parameters derived from the parent index"""
-    l = np.concatenate([l, l[parent_idx] + normal(size=(1, 1)) / 10]).clip(min=0)
-    g = np.concatenate([g, g[parent_idx] + normal(size=(1, 1)) / 10]).clip(min=0)
-    a = np.concatenate([a, a[parent_idx] + normal(size=(1, 1)) / 10]).clip(min=0)
-    f = np.concatenate([f, f[parent_idx] + normal(size=(1, 1)) / 10]).clip(min=1e-6)
+    l = np.concatenate([l, l[parent_idx] + normal(size=(1, 1)) * NOISE_STD]).clip(min=0)
+    g = np.concatenate([g, g[parent_idx] + normal(size=(1, 1)) * NOISE_STD]).clip(min=0)
+    a = np.concatenate([a, a[parent_idx] + normal(size=(1, 1)) * NOISE_STD]).clip(min=0)
+    f = np.concatenate([f, f[parent_idx] + normal(size=(1, 1)) * NOISE_STD]).clip(min=1e-6)
     timer = np.concatenate([timer, np.random.exponential(scale=1 / f[-1], size=(1, 1))])
 
-    beta_self = B[-1, -1] * BETA_RED_DIAGONAL + normal(size=(1, 1)) / 10
+    beta_self = B[-1, -1] * BETA_RED_DIAGONAL + normal(size=(1, 1)) * NOISE_STD
     beta_self = beta_self.clip(min=0, max=l[-1])
     B = augment_beta(B, beta_self, parent_idx=parent_idx)
-    D = np.concatenate([D, D[parent_idx] + normal(size=(1, 3)) / 10]).clip(min=0)
+    D = np.concatenate([D, D[parent_idx] + normal(size=(1, 3)) * NOISE_STD]).clip(min=0)
     return l, g, B, a, f, D, timer
 
 

@@ -9,7 +9,7 @@ from numpy.random import normal
 here = pathlib.Path(__file__).parent.parent
 sys.path.insert(0, str(here))
 
-from solver.params_util import BETA_RED_DIAGONAL, Variant, augment_beta
+from solver.params_util import BETA_RED_DIAGONAL, NOISE_STD, Variant, augment_beta
 from solver.state import pack, unpack
 
 
@@ -38,7 +38,7 @@ def clip_list(args, min, max):
 def generate_from_prior(dim, prior, clipped=False):
     """Generate dim variants from prior"""
     vars = []
-    rand = normal(size=(dim, 6)) / 10
+    rand = normal(size=(dim, 6)) * NOISE_STD
     if dim > 1:
         for i in range(dim):
             lamda = prior.lamda + rand[i, 0]
