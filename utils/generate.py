@@ -35,7 +35,7 @@ def clip_list(args, min, max):
     return [arg.clip(min=min, max=max) for arg in args]
 
 
-def generate_from_prior(dim, prior, clipped=False):
+def generate_from_prior(dim, prior, clipped=False, realistic_clipping=False):
     """Generate dim variants from prior"""
     vars = []
     rand = normal(size=(dim, 6)) * NOISE_STD
@@ -54,6 +54,9 @@ def generate_from_prior(dim, prior, clipped=False):
             if clipped:
                 attr = [lamda, gamma, beta_self, alpha, freq, death]
                 lamda, gamma, beta_self, alpha, freq, death = clip_list(attr, 0, 1)
+            if realistic_clipping:
+                gamma = gamma.clip(min=0.1)
+                alpha = alpha.clip(min=0.1)
 
             vars.append(Variant(lamda, gamma, beta_self, alpha, freq, death, 0, 0, None, i))
     else:

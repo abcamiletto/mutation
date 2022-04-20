@@ -44,7 +44,7 @@ if __name__ == "__main__":
         pool = deepcopy(init_variants)
         # We add 8*N variants to reach a total of 9*N variants
         for var in init_variants:
-            pool.extend(generate_from_prior(8, var, clipped=True))
+            pool.extend(generate_from_prior(8, var, clipped=True, realistic_clipping=True))
 
         # We add N new variants to get to 10*N
         pool.extend(generate_random_vars(dim=dimension))
