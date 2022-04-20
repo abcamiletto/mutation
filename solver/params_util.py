@@ -68,7 +68,8 @@ def augment_parameters(l, g, B, a, f, D, timer, parent_idx):
     f = np.concatenate([f, f[parent_idx] + normal(size=(1, 1)) * NOISE_STD]).clip(min=1e-6)
     timer = np.concatenate([timer, np.random.exponential(scale=1 / f[-1], size=(1, 1))])
 
-    beta_self = B[-1, -1] * BETA_RED_DIAGONAL + normal(size=(1, 1)) * NOISE_STD
+    # TODO: SCALE WITH LAMBDA FACTOR
+    beta_self = B[parent_idx, parent_idx] * BETA_RED_DIAGONAL + normal(size=(1, 1)) * NOISE_STD
     beta_self = beta_self.clip(min=0, max=l[-1])
     B = augment_beta(B, beta_self, parent_idx=parent_idx)
     D = np.concatenate([D, D[parent_idx] + normal(size=(1, 3)) * NOISE_STD]).clip(min=0)
